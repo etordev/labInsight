@@ -1,0 +1,17 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.container {
+  flex: 1;
+}
+
+.sidenav {
+  border-right: 1px solid var(--mat-sys-outline-variant);
+}
+
+.content {
+  padding: 1.5rem;
+}

@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: labinsight-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-labinsight}
+      POSTGRES_USER: ${POSTGRES_USER:-labinsight}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-labinsight_dev}
+    volumes:
+      - labinsight_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U labinsight -d labinsight"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  labinsight_pgdata:

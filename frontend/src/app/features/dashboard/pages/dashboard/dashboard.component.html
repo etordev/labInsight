@@ -1,0 +1,27 @@
+<section class="dashboard">
+  <header class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p>Operational overview of the NovaLab laboratory network.</p>
+  </header>
+
+  @if (isLoading()) {
+    <div class="state">
+      <mat-progress-spinner mode="indeterminate" diameter="40" />
+      <p>Loading dashboard...</p>
+    </div>
+  } @else if (hasError()) {
+    <div class="state state-error">
+      <p>Unable to load dashboard.</p>
+    </div>
+  } @else if (graphItems().length === 0) {
+    <div class="state">
+      <p>No dashboard items available.</p>
+    </div>
+  } @else {
+    <div class="dashboard-grid">
+      @for (item of graphItems(); track item.id) {
+        <app-graph-item [graphItem]="item" />
+      }
+    </div>
+  }
+</section>

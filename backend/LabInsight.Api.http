@@ -1,0 +1,29 @@
+@LabInsight.Api_HostAddress = http://localhost:5080
+
+GET {{LabInsight.Api_HostAddress}}/api/graph-items
+Accept: application/json
+
+###
+
+GET {{LabInsight.Api_HostAddress}}/api/laboratories
+Accept: application/json
+
+###
+
+GET {{LabInsight.Api_HostAddress}}/api/analysis-categories
+Accept: application/json
+
+###
+
+GET {{LabInsight.Api_HostAddress}}/api/graph-types
+Accept: application/json
+
+###
+
+GET {{LabInsight.Api_HostAddress}}/api/graph-data-types
+Accept: application/json
+
+###
+
+GET {{LabInsight.Api_HostAddress}}/api/analyses?page=1&pageSize=50
+Accept: application/json
