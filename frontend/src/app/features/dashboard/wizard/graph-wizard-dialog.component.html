@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Create a new graph</h2>
+
+<mat-dialog-content class="wizard-content">
+  @if (step() === 1) {
+    <app-select-data-step
+      [selected]="state.selectedGraphDataType()"
+      (selectedChange)="state.setGraphDataType($event)"
+    />
+  } @else {
+    <section class="step-placeholder" aria-labelledby="select-visualization-title">
+      <h3 id="select-visualization-title">Select visualization</h3>
+      <p>Chart type selection will use the compatible options for the data you chose.</p>
+    </section>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (step() === 1) {
+    <button mat-button type="button" (click)="close()">Cancel</button>
+    <button
+      mat-flat-button
+      type="button"
+      [disabled]="state.selectedGraphDataType() === null"
+      (click)="continue()"
+    >
+      Next
+    </button>
+  } @else {
+    <button mat-button type="button" (click)="goBack()">Back</button>
+    <button mat-flat-button type="button" disabled>Next</button>
+  }
+</mat-dialog-actions>

@@ -23,3 +23,7 @@ body {
   color: var(--mat-sys-on-surface);
   font-family: Roboto, sans-serif;
 }
+
+.graph-wizard-dialog .mat-mdc-dialog-surface {
+  padding-bottom: 0.5rem;
+}

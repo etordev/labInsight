@@ -1,3 +1,4 @@
+using LabInsight.Api.Catalog;
 using LabInsight.Api.Entities;
 using LabInsight.Api.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -21,47 +22,46 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
 
     private async Task SeedGraphTypesAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.GraphTypes.AnyAsync(cancellationToken))
+        var existing = await dbContext.GraphTypes
+            .Select(type => type.TechnicalName)
+            .ToListAsync(cancellationToken);
+        var existingNames = existing.ToHashSet(StringComparer.Ordinal);
+
+        var missing = GraphMetadata.GraphTypeTechnicalNames
+            .Where(name => !existingNames.Contains(name))
+            .Select(name => new GraphTypeEntity { TechnicalName = name })
+            .ToList();
+
+        if (missing.Count == 0)
         {
             return;
         }
 
-        string[] names =
-        [
-            "BAR_CHART",
-            "LINE_CHART",
-            "PIE_CHART",
-            "DOUGHNUT_CHART",
-            "DATA_GRID"
-        ];
-
-        dbContext.GraphTypes.AddRange(names.Select(name => new GraphTypeEntity { TechnicalName = name }));
+        dbContext.GraphTypes.AddRange(missing);
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Seeded {Count} graph types.", names.Length);
+        logger.LogInformation("Upserted {Count} missing graph types.", missing.Count);
     }
 
     private async Task SeedGraphDataTypesAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.GraphDataTypes.AnyAsync(cancellationToken))
+        var existing = await dbContext.GraphDataTypes
+            .Select(type => type.TechnicalName)
+            .ToListAsync(cancellationToken);
+        var existingNames = existing.ToHashSet(StringComparer.Ordinal);
+
+        var missing = GraphMetadata.GraphDataTypeTechnicalNames
+            .Where(name => !existingNames.Contains(name))
+            .Select(name => new GraphDataTypeEntity { TechnicalName = name })
+            .ToList();
+
+        if (missing.Count == 0)
         {
             return;
         }
 
-        string[] names =
-        [
-            "ANALYSIS_VOLUME",
-            "ANALYSIS_STATUS",
-            "PROCESSING_TIME",
-            "ANALYSIS_CATEGORY",
-            "LABORATORY_WORKLOAD",
-            "PRIORITY_DISTRIBUTION",
-            "COMPLETION_RATE",
-            "DELAYED_ANALYSES"
-        ];
-
-        dbContext.GraphDataTypes.AddRange(names.Select(name => new GraphDataTypeEntity { TechnicalName = name }));
+        dbContext.GraphDataTypes.AddRange(missing);
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Seeded {Count} graph data types.", names.Length);
+        logger.LogInformation("Upserted {Count} missing graph data types.", missing.Count);
     }
 
     private async Task SeedLaboratoriesAsync(CancellationToken cancellationToken)

@@ -1,0 +1,17 @@
+.wizard-content {
+  min-height: 18rem;
+  max-height: min(70vh, 36rem);
+}
+
+.step-placeholder h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.step-placeholder p {
+  margin: 0.45rem 0 0;
+  color: var(--mat-sys-on-surface-variant);
+  line-height: 1.5;
+}
