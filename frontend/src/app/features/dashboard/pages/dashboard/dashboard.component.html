@@ -1,21 +1,45 @@
 <section class="dashboard">
-  <header class="dashboard-header">
-    <h1>Dashboard</h1>
-    <p>Operational overview of the NovaLab laboratory network.</p>
+  <header class="dashboard-toolbar">
+    <div class="dashboard-heading">
+      <p class="eyebrow">NovaLab network</p>
+      <h1>Dashboard</h1>
+      <p class="lede">Build a view of laboratory operations, one graph at a time.</p>
+    </div>
+
+    @if (!isLoading() && !hasError() && graphItems().length > 0) {
+      <button mat-flat-button class="create-button" type="button" (click)="onCreateGraph()">
+        <mat-icon>add</mat-icon>
+        Create a new graph
+      </button>
+    }
   </header>
 
   @if (isLoading()) {
-    <div class="state">
-      <mat-progress-spinner mode="indeterminate" diameter="40" />
-      <p>Loading dashboard...</p>
+    <div class="panel state">
+      <mat-progress-spinner mode="indeterminate" diameter="36" />
+      <p>Loading your workspace…</p>
     </div>
   } @else if (hasError()) {
-    <div class="state state-error">
-      <p>Unable to load dashboard.</p>
+    <div class="panel state state-error">
+      <mat-icon class="state-icon" aria-hidden="true">cloud_off</mat-icon>
+      <h2>Couldn’t load the dashboard</h2>
+      <p>Check that the API is running, then try again.</p>
+      <button mat-stroked-button type="button" (click)="retry()">Try again</button>
     </div>
   } @else if (graphItems().length === 0) {
-    <div class="state">
-      <p>No dashboard items available.</p>
+    <div class="panel empty">
+      <div class="empty-icon" aria-hidden="true">
+        <mat-icon>insights</mat-icon>
+      </div>
+      <h2>Your dashboard is empty</h2>
+      <p>
+        There are no graphs yet. Create one to start tracking volume, status,
+        processing time, or workload across laboratories.
+      </p>
+      <button mat-flat-button class="create-button" type="button" (click)="onCreateGraph()">
+        <mat-icon>add</mat-icon>
+        Create a new graph
+      </button>
     </div>
   } @else {
     <div class="dashboard-grid">

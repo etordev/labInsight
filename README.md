@@ -74,8 +74,8 @@ The first API start applies pending migrations and seeds:
 
 - laboratories and analysis categories
 - graph types and graph data types
-- four default graph items
 - approximately 10,000 synthetic `LabAnalysis` records
+- the dashboard starts empty (graphs are created by the user)
 
 Seeding is skipped when those records already exist.
 

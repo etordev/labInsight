@@ -15,7 +15,7 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         await SeedGraphDataTypesAsync(cancellationToken);
         await SeedLaboratoriesAsync(cancellationToken);
         await SeedAnalysisCategoriesAsync(cancellationToken);
-        await SeedGraphItemsAsync(cancellationToken);
+        await RemoveLegacyDefaultGraphItemsAsync(cancellationToken);
         await SeedLabAnalysesAsync(cancellationToken);
     }
 
@@ -97,80 +97,24 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         logger.LogInformation("Seeded analysis categories.");
     }
 
-    private async Task SeedGraphItemsAsync(CancellationToken cancellationToken)
+    private static readonly string[] LegacyDefaultGraphItemNames =
+    [
+        "Analysis Volume",
+        "Analysis Status",
+        "Average Processing Time",
+        "Laboratory Workload"
+    ];
+
+    private async Task RemoveLegacyDefaultGraphItemsAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.GraphItems.AnyAsync(cancellationToken))
+        var removed = await dbContext.GraphItems
+            .Where(item => LegacyDefaultGraphItemNames.Contains(item.Name) && item.Content == null)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        if (removed > 0)
         {
-            return;
+            logger.LogInformation("Removed {Count} placeholder graph items from the dashboard.", removed);
         }
-
-        var graphTypes = await dbContext.GraphTypes.ToDictionaryAsync(
-            t => t.TechnicalName,
-            cancellationToken);
-        var graphDataTypes = await dbContext.GraphDataTypes.ToDictionaryAsync(
-            t => t.TechnicalName,
-            cancellationToken);
-
-        dbContext.GraphItems.AddRange(
-            CreateGraphItem(
-                "Analysis Volume",
-                "Laboratory analysis volume over time",
-                graphTypes,
-                graphDataTypes,
-                "LINE_CHART",
-                "ANALYSIS_VOLUME"),
-            CreateGraphItem(
-                "Analysis Status",
-                "Distribution of laboratory analysis statuses",
-                graphTypes,
-                graphDataTypes,
-                "DOUGHNUT_CHART",
-                "ANALYSIS_STATUS"),
-            CreateGraphItem(
-                "Average Processing Time",
-                "Average processing time by analysis category",
-                graphTypes,
-                graphDataTypes,
-                "BAR_CHART",
-                "PROCESSING_TIME"),
-            CreateGraphItem(
-                "Laboratory Workload",
-                "Current analysis workload by laboratory",
-                graphTypes,
-                graphDataTypes,
-                "BAR_CHART",
-                "LABORATORY_WORKLOAD"));
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Seeded default graph items.");
-    }
-
-    private static GraphItemEntity CreateGraphItem(
-        string name,
-        string description,
-        IReadOnlyDictionary<string, GraphTypeEntity> graphTypes,
-        IReadOnlyDictionary<string, GraphDataTypeEntity> graphDataTypes,
-        string graphTypeName,
-        string graphDataTypeName)
-    {
-        if (!graphTypes.TryGetValue(graphTypeName, out var graphType))
-        {
-            throw new InvalidOperationException($"Graph type '{graphTypeName}' was not found.");
-        }
-
-        if (!graphDataTypes.TryGetValue(graphDataTypeName, out var graphDataType))
-        {
-            throw new InvalidOperationException($"Graph data type '{graphDataTypeName}' was not found.");
-        }
-
-        return new GraphItemEntity
-        {
-            Name = name,
-            Description = description,
-            Content = null,
-            GraphTypeId = graphType.Id,
-            GraphDataTypeId = graphDataType.Id
-        };
     }
 
     private async Task SeedLabAnalysesAsync(CancellationToken cancellationToken)

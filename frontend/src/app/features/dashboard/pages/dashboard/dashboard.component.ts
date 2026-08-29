@@ -1,4 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GraphItemComponent } from '../../components/graph-item/graph-item.component';
 import { GraphItem } from '../../models/graph-item.model';
@@ -6,7 +8,7 @@ import { GraphItemService } from '../../services/graph-item.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [GraphItemComponent, MatProgressSpinnerModule],
+  imports: [GraphItemComponent, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -18,6 +20,14 @@ export class DashboardComponent implements OnInit {
   readonly hasError = signal(false);
 
   ngOnInit(): void {
+    this.loadGraphItems();
+  }
+
+  onCreateGraph(): void {
+    // Wizard will be added in a follow-up step.
+  }
+
+  retry(): void {
     this.loadGraphItems();
   }
 

@@ -4,14 +4,15 @@
   height: 100vh;
 }
 
-.container {
-  flex: 1;
-}
-
-.sidenav {
-  border-right: 1px solid var(--mat-sys-outline-variant);
-}
-
 .content {
-  padding: 1.5rem;
+  flex: 1;
+  overflow: auto;
+  padding: 2rem 1.75rem 2.5rem;
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+@media (max-width: 720px) {
+  .content {
+    padding: 1.25rem 1rem 2rem;
+  }
 }
