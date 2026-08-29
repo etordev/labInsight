@@ -13,4 +13,24 @@ public class GraphItemsController(IGraphItemService graphItemService) : Controll
     {
         return Ok(await graphItemService.GetAllAsync(cancellationToken));
     }
+
+    [HttpPost]
+    public async Task<ActionResult<GraphItemDto>> Create(
+        [FromBody] CreateGraphItemRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await graphItemService.CreateAsync(request, cancellationToken);
+
+        if (result.Item is not null)
+        {
+            return Created($"/api/graph-items/{result.Item.Id}", result.Item);
+        }
+
+        if (result.NotFound)
+        {
+            return NotFound(new { message = result.Error });
+        }
+
+        return BadRequest(new { message = result.Error });
+    }
 }

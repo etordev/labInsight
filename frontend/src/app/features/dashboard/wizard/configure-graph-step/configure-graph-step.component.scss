@@ -1,0 +1,38 @@
+@use '../wizard-option-cards';
+
+.catalog-error {
+  margin: 0;
+  color: var(--mat-sys-error);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.configure-form {
+  margin-top: 0.15rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.15rem 0.75rem;
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+.form-grid mat-form-field {
+  width: 100%;
+}
+
+.field-error {
+  margin: 0 0 0.5rem;
+  color: var(--mat-sys-error);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

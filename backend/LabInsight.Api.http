@@ -27,3 +27,16 @@ Accept: application/json
 
 GET {{LabInsight.Api_HostAddress}}/api/analyses?page=1&pageSize=50
 Accept: application/json
+
+###
+
+POST {{LabInsight.Api_HostAddress}}/api/graph-items
+Content-Type: application/json
+
+{
+  "name": "Monthly Analysis Volume",
+  "description": "Monthly volume for Frankfurt",
+  "graphTypeId": 2,
+  "graphDataTypeId": 1,
+  "content": "{\"filters\":{\"laboratoryId\":1},\"groupBy\":\"MONTH\"}"
+}

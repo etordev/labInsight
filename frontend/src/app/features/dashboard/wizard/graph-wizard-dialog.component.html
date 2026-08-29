@@ -15,12 +15,16 @@
         (selectedChange)="state.setGraphType($event)"
       />
     }
-    @default {
-      <section class="step-placeholder" aria-labelledby="configure-graph-title">
-        <h3 id="configure-graph-title">Configure graph</h3>
-        <p>Graph configuration will be added in the next step.</p>
-      </section>
+    @case (3) {
+      <app-configure-graph-step />
     }
+    @default {
+      <app-review-graph-step />
+    }
+  }
+
+  @if (createError(); as error) {
+    <p class="create-error" role="alert">{{ error }}</p>
   }
 </mat-dialog-content>
 
@@ -36,14 +40,20 @@
       Next
     </button>
   } @else {
-    <button mat-button type="button" (click)="goBack()">Back</button>
-    <button
-      mat-flat-button
-      type="button"
-      [disabled]="step() !== 2 || state.selectedGraphType() === null"
-      (click)="continue()"
-    >
-      Next
-    </button>
+    <button mat-button type="button" [disabled]="isCreating()" (click)="goBack()">Back</button>
+    @if (step() === 4) {
+      <button
+        mat-flat-button
+        type="button"
+        [disabled]="isCreating()"
+        (click)="createGraph()"
+      >
+        {{ isCreating() ? 'Creating…' : 'Create Graph' }}
+      </button>
+    } @else {
+      <button mat-flat-button type="button" [disabled]="nextDisabled()" (click)="continue()">
+        Next
+      </button>
+    }
   }
 </mat-dialog-actions>

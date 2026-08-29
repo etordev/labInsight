@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { CreateGraphItemRequest } from '../models/create-graph-item-request.model';
 import { GraphItem } from '../models/graph-item.model';
 
 @Injectable({
@@ -13,5 +14,9 @@ export class GraphItemService {
 
   getGraphItems(): Observable<GraphItem[]> {
     return this.http.get<GraphItem[]>(`${this.apiBaseUrl}/api/graph-items`);
+  }
+
+  createGraphItem(request: CreateGraphItemRequest): Observable<GraphItem> {
+    return this.http.post<GraphItem>(`${this.apiBaseUrl}/api/graph-items`, request);
   }
 }
