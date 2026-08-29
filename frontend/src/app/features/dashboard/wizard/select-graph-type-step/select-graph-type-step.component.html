@@ -1,16 +1,19 @@
 <section class="wizard-step">
   <header class="wizard-step-heading">
-    <h3 id="select-data-title">Select Data</h3>
-    <p id="select-data-subtitle">Choose the laboratory information you want to analyze.</p>
+    <h3 id="select-graph-type-title">Select Graph Type</h3>
+    <p id="select-graph-type-subtitle">Choose how you want to visualize the selected data.</p>
+    @if (selectedDataLabel(); as dataLabel) {
+      <p class="selected-data-context">Selected data: {{ dataLabel }}</p>
+    }
   </header>
 
   <div
     class="wizard-option-grid"
     role="radiogroup"
-    aria-labelledby="select-data-title"
-    aria-describedby="select-data-subtitle"
+    aria-labelledby="select-graph-type-title"
+    aria-describedby="select-graph-type-subtitle"
   >
-    @for (option of options; track option.technicalName) {
+    @for (option of options(); track option.technicalName) {
       <button
         type="button"
         class="wizard-option-card"
