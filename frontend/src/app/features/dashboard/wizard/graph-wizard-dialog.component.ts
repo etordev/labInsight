@@ -3,6 +3,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { map, startWith } from 'rxjs';
 import { serializeGraphItemContent } from '../models/build-graph-item-content';
 import { GraphItemService } from '../services/graph-item.service';
@@ -18,6 +19,7 @@ import { SelectGraphTypeStepComponent } from './select-graph-type-step/select-gr
   imports: [
     MatButtonModule,
     MatDialogModule,
+    MatIconModule,
     ConfigureGraphStepComponent,
     ReviewGraphStepComponent,
     SelectDataStepComponent,

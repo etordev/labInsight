@@ -1,3 +1,24 @@
+.wizard-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.close-button {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+.close-button mat-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+}
+
 .wizard-content {
   min-height: 18rem;
   max-height: min(70vh, 36rem);

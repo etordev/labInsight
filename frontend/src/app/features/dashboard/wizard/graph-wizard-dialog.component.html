@@ -1,4 +1,16 @@
-<h2 mat-dialog-title>Create a new graph</h2>
+<h2 mat-dialog-title class="wizard-title">
+  <span>Create a new graph</span>
+  <button
+    mat-icon-button
+    class="close-button"
+    type="button"
+    aria-label="Close"
+    [disabled]="isCreating()"
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
 
 <mat-dialog-content class="wizard-content">
   @switch (step()) {
