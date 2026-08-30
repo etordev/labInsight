@@ -7,7 +7,7 @@ namespace LabInsight.Api.Data;
 
 public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeeder> logger)
 {
-    private const int SyntheticAnalysisCount = 10_000;
+    private const int SyntheticAnalysisCount = 15_000;
     private const int RandomSeed = 42;
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
@@ -16,8 +16,8 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         await SeedGraphDataTypesAsync(cancellationToken);
         await SeedLaboratoriesAsync(cancellationToken);
         await SeedAnalysisCategoriesAsync(cancellationToken);
-        await RemoveLegacyDefaultGraphItemsAsync(cancellationToken);
         await SeedLabAnalysesAsync(cancellationToken);
+        await SeedDemoGraphItemsAsync(cancellationToken);
     }
 
     private async Task SeedGraphTypesAsync(CancellationToken cancellationToken)
@@ -97,31 +97,25 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         logger.LogInformation("Seeded analysis categories.");
     }
 
-    private static readonly string[] LegacyDefaultGraphItemNames =
-    [
-        "Analysis Volume",
-        "Analysis Status",
-        "Average Processing Time",
-        "Laboratory Workload"
-    ];
-
-    private async Task RemoveLegacyDefaultGraphItemsAsync(CancellationToken cancellationToken)
-    {
-        var removed = await dbContext.GraphItems
-            .Where(item => LegacyDefaultGraphItemNames.Contains(item.Name) && item.Content == null)
-            .ExecuteDeleteAsync(cancellationToken);
-
-        if (removed > 0)
-        {
-            logger.LogInformation("Removed {Count} placeholder graph items from the dashboard.", removed);
-        }
-    }
-
     private async Task SeedLabAnalysesAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.LabAnalyses.AnyAsync(cancellationToken))
+        var existingCount = await dbContext.LabAnalyses.CountAsync(cancellationToken);
+        if (existingCount == SyntheticAnalysisCount)
         {
-            logger.LogInformation("Synthetic lab analyses already exist. Skipping analysis seed.");
+            logger.LogInformation("Synthetic lab analyses already exist ({Count}). Skipping analysis seed.", existingCount);
+            return;
+        }
+
+        if (existingCount == 10_000)
+        {
+            logger.LogInformation("Replacing previous 10,000-row analysis seed with {Count} records.", SyntheticAnalysisCount);
+            await dbContext.LabAnalyses.ExecuteDeleteAsync(cancellationToken);
+        }
+        else if (existingCount > 0)
+        {
+            logger.LogInformation(
+                "Lab analyses already exist ({Count}) and were not replaced. Skipping analysis seed.",
+                existingCount);
             return;
         }
 
@@ -136,13 +130,14 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         var random = new Random(RandomSeed);
         var now = DateTime.UtcNow;
         var windowStart = now.AddMonths(-12);
+        var monthWeights = BuildMonthWeights(random);
         var analyses = new List<LabAnalysis>(SyntheticAnalysisCount);
 
         for (var i = 1; i <= SyntheticAnalysisCount; i++)
         {
-            var laboratory = laboratories[random.Next(laboratories.Count)];
-            var category = categories[random.Next(categories.Count)];
-            var receivedAt = RandomDate(random, windowStart, now);
+            var laboratory = PickLaboratory(laboratories, random);
+            var category = PickCategory(categories, random);
+            var receivedAt = RandomWeightedDate(random, windowStart, now, monthWeights);
             var priority = NextPriority(random);
             var status = NextStatus(random, now, receivedAt);
 
@@ -177,6 +172,160 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         }
 
         logger.LogInformation("Seeded {Count} synthetic lab analyses.", SyntheticAnalysisCount);
+    }
+
+    private async Task SeedDemoGraphItemsAsync(CancellationToken cancellationToken)
+    {
+        if (await dbContext.GraphItems.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        var graphTypes = await dbContext.GraphTypes.ToDictionaryAsync(
+            type => type.TechnicalName,
+            cancellationToken);
+        var graphDataTypes = await dbContext.GraphDataTypes.ToDictionaryAsync(
+            type => type.TechnicalName,
+            cancellationToken);
+
+        dbContext.GraphItems.AddRange(
+            CreateDemoGraphItem(
+                "Analysis Volume",
+                "Laboratory analysis volume over the last 12 months",
+                "LINE_CHART",
+                "ANALYSIS_VOLUME",
+                """{"groupBy":"MONTH"}""",
+                graphTypes,
+                graphDataTypes),
+            CreateDemoGraphItem(
+                "Analysis Status",
+                "Distribution of laboratory analysis statuses",
+                "DOUGHNUT_CHART",
+                "ANALYSIS_STATUS",
+                null,
+                graphTypes,
+                graphDataTypes),
+            CreateDemoGraphItem(
+                "Average Processing Time",
+                "Average processing time by analysis category",
+                "BAR_CHART",
+                "PROCESSING_TIME",
+                null,
+                graphTypes,
+                graphDataTypes),
+            CreateDemoGraphItem(
+                "Laboratory Workload",
+                "Current analysis workload by laboratory",
+                "BAR_CHART",
+                "LABORATORY_WORKLOAD",
+                null,
+                graphTypes,
+                graphDataTypes));
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        logger.LogInformation("Seeded default dashboard graph items.");
+    }
+
+    private static GraphItemEntity CreateDemoGraphItem(
+        string name,
+        string description,
+        string graphTypeName,
+        string graphDataTypeName,
+        string? content,
+        IReadOnlyDictionary<string, GraphTypeEntity> graphTypes,
+        IReadOnlyDictionary<string, GraphDataTypeEntity> graphDataTypes)
+    {
+        return new GraphItemEntity
+        {
+            Name = name,
+            Description = description,
+            Content = content,
+            GraphTypeId = graphTypes[graphTypeName].Id,
+            GraphDataTypeId = graphDataTypes[graphDataTypeName].Id
+        };
+    }
+
+    private static Laboratory PickLaboratory(IReadOnlyList<Laboratory> laboratories, Random random)
+    {
+        var roll = random.NextDouble();
+        var preferredName = roll < 0.52
+            ? "NovaLab Frankfurt"
+            : roll < 0.80
+                ? "NovaLab Mainz"
+                : "NovaLab Darmstadt";
+
+        return laboratories.FirstOrDefault(lab => lab.Name == preferredName) ?? laboratories[random.Next(laboratories.Count)];
+    }
+
+    private static AnalysisCategory PickCategory(IReadOnlyList<AnalysisCategory> categories, Random random)
+    {
+        var roll = random.NextDouble();
+        var preferredName = roll < 0.28
+            ? "Hematology"
+            : roll < 0.60
+                ? "Clinical Chemistry"
+                : roll < 0.78
+                    ? "Microbiology"
+                    : "Molecular Diagnostics";
+
+        return categories.FirstOrDefault(category => category.Name == preferredName)
+               ?? categories[random.Next(categories.Count)];
+    }
+
+    private static double[] BuildMonthWeights(Random random)
+    {
+        var weights = new double[12];
+        for (var index = 0; index < 12; index++)
+        {
+            weights[index] = 0.82 + (0.28 * Math.Sin(index * Math.PI / 6.0)) + NextDouble(random, -0.04, 0.04);
+            if (weights[index] < 0.55)
+            {
+                weights[index] = 0.55;
+            }
+        }
+
+        return weights;
+    }
+
+    private static DateTime RandomWeightedDate(
+        Random random,
+        DateTime windowStart,
+        DateTime now,
+        IReadOnlyList<double> monthWeights)
+    {
+        var total = monthWeights.Sum();
+        var pick = random.NextDouble() * total;
+        var cumulative = 0.0;
+        var monthOffset = 11;
+
+        for (var index = 0; index < 12; index++)
+        {
+            cumulative += monthWeights[index];
+            if (pick <= cumulative)
+            {
+                monthOffset = index;
+                break;
+            }
+        }
+
+        var monthStart = new DateTime(windowStart.Year, windowStart.Month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(monthOffset);
+        var monthEnd = monthStart.AddMonths(1);
+        if (monthStart < windowStart)
+        {
+            monthStart = windowStart;
+        }
+
+        if (monthEnd > now)
+        {
+            monthEnd = now;
+        }
+
+        if (monthEnd <= monthStart)
+        {
+            return now;
+        }
+
+        return RandomDate(random, monthStart, monthEnd);
     }
 
     private static AnalysisPriority NextPriority(Random random)

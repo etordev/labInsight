@@ -1,14 +1,54 @@
 <mat-card class="graph-item-card" appearance="outlined">
   <mat-card-header>
     <mat-card-title>{{ graphItem().name }}</mat-card-title>
-    <mat-card-subtitle>{{ graphItem().description }}</mat-card-subtitle>
+    <mat-card-subtitle>
+      @if (graphItem().description) {
+        <span>{{ graphItem().description }}</span>
+      }
+      <span class="meta-line">{{ dataTypeLabel() }} · {{ graphTypeLabel() }}</span>
+    </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <dl class="meta">
-      <dt>Graph Type</dt>
-      <dd>{{ graphItem().graphType.technicalName }}</dd>
-      <dt>Data Type</dt>
-      <dd>{{ graphItem().graphDataType.technicalName }}</dd>
-    </dl>
+    @if (isLoading()) {
+      <div class="widget-state">
+        <mat-progress-spinner mode="indeterminate" diameter="32" />
+        <p>Loading analytics…</p>
+      </div>
+    } @else if (hasError()) {
+      <div class="widget-state widget-error">
+        <p>Couldn’t load this graph.</p>
+      </div>
+    } @else if (isEmpty()) {
+      <div class="widget-state">
+        <p>No data matches the current filters.</p>
+      </div>
+    } @else {
+      <div class="widget-scroll">
+        @switch (graphItem().graphType.technicalName) {
+          @case (graphTypes.LINE_CHART) {
+            <app-line-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (graphTypes.BAR_CHART) {
+            <app-bar-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (graphTypes.PIE_CHART) {
+            <app-pie-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (graphTypes.DOUGHNUT_CHART) {
+            <app-doughnut-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (graphTypes.DATA_GRID) {
+            <app-data-grid
+              [points]="analytics()!.data"
+              [rows]="analytics()!.rows"
+              [unit]="analytics()!.unit"
+            />
+          }
+          @default {
+            <p class="widget-state">This visualization is not supported yet.</p>
+          }
+        }
+      </div>
+    }
   </mat-card-content>
 </mat-card>

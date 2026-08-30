@@ -27,6 +27,7 @@ builder.Services.AddScoped<ILabAnalysisService, LabAnalysisService>();
 builder.Services.AddScoped<IGraphTypeService, GraphTypeService>();
 builder.Services.AddScoped<IGraphDataTypeService, GraphDataTypeService>();
 builder.Services.AddScoped<IGraphItemService, GraphItemService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 builder.Services.AddCors(options =>
 {

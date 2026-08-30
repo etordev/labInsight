@@ -1,6 +1,6 @@
 @LabInsight.Api_HostAddress = http://localhost:5080
 
-GET {{LabInsight.Api_HostAddress}}/api/getGraphItems
+GET {{LabInsight.Api_HostAddress}}/api/getGraphItemData/1
 Accept: application/json
 
 ###

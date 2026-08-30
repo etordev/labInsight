@@ -6,8 +6,22 @@ namespace LabInsight.Api.Controllers;
 
 [ApiController]
 [Route("api")]
-public class GraphItemsController(IGraphItemService graphItemService) : ControllerBase
+public class GraphItemsController(IGraphItemService graphItemService, IAnalyticsService analyticsService) : ControllerBase
 {
+    [HttpGet("getGraphItemData/{id:int}")]
+    public async Task<ActionResult<GraphItemAnalyticsDto>> GetGraphItemData(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var analytics = await analyticsService.GetGraphItemDataAsync(id, cancellationToken);
+        if (analytics is null)
+        {
+            return NotFound(new { message = "Graph item was not found." });
+        }
+
+        return Ok(analytics);
+    }
+
     [HttpGet("getGraphItems")]
     public async Task<ActionResult<IReadOnlyList<GraphItemDto>>> GetGraphItems(CancellationToken cancellationToken)
     {

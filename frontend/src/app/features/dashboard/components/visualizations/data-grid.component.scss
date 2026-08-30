@@ -1,0 +1,28 @@
+.grid-wrap {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 22rem;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.analytics-table {
+  width: max-content;
+  min-width: 35rem;
+}
+
+.analytics-table-wide {
+  min-width: 56rem;
+}
+
+.analytics-table th,
+.analytics-table td {
+  white-space: nowrap;
+}
+
+.analytics-table th {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
