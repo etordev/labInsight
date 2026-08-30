@@ -23,6 +23,7 @@ export interface ReviewRow {
 export class ReviewGraphStepComponent {
   private readonly state = inject(GraphWizardState);
   private readonly catalog = inject(GraphWizardCatalog);
+  readonly isEditing = this.state.isEditing;
   private readonly formValue = toSignal(
     this.state.form.valueChanges.pipe(startWith(this.state.form.getRawValue())),
     { initialValue: this.state.form.getRawValue() }

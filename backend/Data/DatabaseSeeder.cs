@@ -1,11 +1,18 @@
 using LabInsight.Api.Catalog;
 using LabInsight.Api.Entities;
 using LabInsight.Api.Enums;
-using Microsoft.EntityFrameworkCore;
+using LabInsight.Api.Repositories;
 
 namespace LabInsight.Api.Data;
 
-public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeeder> logger)
+public class DatabaseSeeder(
+    IGraphTypeRepository graphTypeRepository,
+    IGraphDataTypeRepository graphDataTypeRepository,
+    ILaboratoryRepository laboratoryRepository,
+    IAnalysisCategoryRepository analysisCategoryRepository,
+    ILabAnalysisRepository labAnalysisRepository,
+    IGraphItemRepository graphItemRepository,
+    ILogger<DatabaseSeeder> logger)
 {
     private const int SyntheticAnalysisCount = 15_000;
     private const int RandomSeed = 42;
@@ -22,9 +29,7 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
 
     private async Task SeedGraphTypesAsync(CancellationToken cancellationToken)
     {
-        var existing = await dbContext.GraphTypes
-            .Select(type => type.TechnicalName)
-            .ToListAsync(cancellationToken);
+        var existing = await graphTypeRepository.ListTechnicalNamesAsync(cancellationToken);
         var existingNames = existing.ToHashSet(StringComparer.Ordinal);
 
         var missing = GraphMetadata.GraphTypeTechnicalNames
@@ -37,16 +42,14 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
             return;
         }
 
-        dbContext.GraphTypes.AddRange(missing);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        graphTypeRepository.AddRange(missing);
+        await graphTypeRepository.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Upserted {Count} missing graph types.", missing.Count);
     }
 
     private async Task SeedGraphDataTypesAsync(CancellationToken cancellationToken)
     {
-        var existing = await dbContext.GraphDataTypes
-            .Select(type => type.TechnicalName)
-            .ToListAsync(cancellationToken);
+        var existing = await graphDataTypeRepository.ListTechnicalNamesAsync(cancellationToken);
         var existingNames = existing.ToHashSet(StringComparer.Ordinal);
 
         var missing = GraphMetadata.GraphDataTypeTechnicalNames
@@ -59,47 +62,51 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
             return;
         }
 
-        dbContext.GraphDataTypes.AddRange(missing);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        graphDataTypeRepository.AddRange(missing);
+        await graphDataTypeRepository.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Upserted {Count} missing graph data types.", missing.Count);
     }
 
     private async Task SeedLaboratoriesAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.Laboratories.AnyAsync(cancellationToken))
+        if (await laboratoryRepository.AnyAsync(cancellationToken))
         {
             return;
         }
 
-        dbContext.Laboratories.AddRange(
+        laboratoryRepository.AddRange(
+        [
             new Laboratory { Name = "NovaLab Frankfurt", City = "Frankfurt" },
             new Laboratory { Name = "NovaLab Mainz", City = "Mainz" },
-            new Laboratory { Name = "NovaLab Darmstadt", City = "Darmstadt" });
+            new Laboratory { Name = "NovaLab Darmstadt", City = "Darmstadt" }
+        ]);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await laboratoryRepository.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Seeded laboratories.");
     }
 
     private async Task SeedAnalysisCategoriesAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.AnalysisCategories.AnyAsync(cancellationToken))
+        if (await analysisCategoryRepository.AnyAsync(cancellationToken))
         {
             return;
         }
 
-        dbContext.AnalysisCategories.AddRange(
+        analysisCategoryRepository.AddRange(
+        [
             new AnalysisCategory { Name = "Hematology", ExpectedProcessingHours = 4 },
             new AnalysisCategory { Name = "Clinical Chemistry", ExpectedProcessingHours = 6 },
             new AnalysisCategory { Name = "Microbiology", ExpectedProcessingHours = 24 },
-            new AnalysisCategory { Name = "Molecular Diagnostics", ExpectedProcessingHours = 48 });
+            new AnalysisCategory { Name = "Molecular Diagnostics", ExpectedProcessingHours = 48 }
+        ]);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await analysisCategoryRepository.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Seeded analysis categories.");
     }
 
     private async Task SeedLabAnalysesAsync(CancellationToken cancellationToken)
     {
-        var existingCount = await dbContext.LabAnalyses.CountAsync(cancellationToken);
+        var existingCount = await labAnalysisRepository.CountAsync(cancellationToken);
         if (existingCount == SyntheticAnalysisCount)
         {
             logger.LogInformation("Synthetic lab analyses already exist ({Count}). Skipping analysis seed.", existingCount);
@@ -109,7 +116,7 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         if (existingCount == 10_000)
         {
             logger.LogInformation("Replacing previous 10,000-row analysis seed with {Count} records.", SyntheticAnalysisCount);
-            await dbContext.LabAnalyses.ExecuteDeleteAsync(cancellationToken);
+            await labAnalysisRepository.DeleteAllAsync(cancellationToken);
         }
         else if (existingCount > 0)
         {
@@ -119,8 +126,8 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
             return;
         }
 
-        var laboratories = await dbContext.Laboratories.AsNoTracking().ToListAsync(cancellationToken);
-        var categories = await dbContext.AnalysisCategories.AsNoTracking().ToListAsync(cancellationToken);
+        var laboratories = await laboratoryRepository.ListOrderedByNameAsync(false, cancellationToken);
+        var categories = await analysisCategoryRepository.ListOrderedByNameAsync(false, cancellationToken);
 
         if (laboratories.Count == 0 || categories.Count == 0)
         {
@@ -166,9 +173,9 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
         for (var offset = 0; offset < analyses.Count; offset += batchSize)
         {
             var batch = analyses.Skip(offset).Take(batchSize);
-            await dbContext.LabAnalyses.AddRangeAsync(batch, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            dbContext.ChangeTracker.Clear();
+            await labAnalysisRepository.AddRangeAsync(batch, cancellationToken);
+            await labAnalysisRepository.SaveChangesAsync(cancellationToken);
+            labAnalysisRepository.ClearTracked();
         }
 
         logger.LogInformation("Seeded {Count} synthetic lab analyses.", SyntheticAnalysisCount);
@@ -176,19 +183,16 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
 
     private async Task SeedDemoGraphItemsAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.GraphItems.AnyAsync(cancellationToken))
+        if (await graphItemRepository.AnyAsync(cancellationToken))
         {
             return;
         }
 
-        var graphTypes = await dbContext.GraphTypes.ToDictionaryAsync(
-            type => type.TechnicalName,
-            cancellationToken);
-        var graphDataTypes = await dbContext.GraphDataTypes.ToDictionaryAsync(
-            type => type.TechnicalName,
-            cancellationToken);
+        var graphTypes = await graphTypeRepository.GetByTechnicalNameAsync(cancellationToken);
+        var graphDataTypes = await graphDataTypeRepository.GetByTechnicalNameAsync(cancellationToken);
 
-        dbContext.GraphItems.AddRange(
+        graphItemRepository.AddRange(
+        [
             CreateDemoGraphItem(
                 "Analysis Volume",
                 "Laboratory analysis volume over the last 12 months",
@@ -220,9 +224,10 @@ public class DatabaseSeeder(LabInsightDbContext dbContext, ILogger<DatabaseSeede
                 "LABORATORY_WORKLOAD",
                 null,
                 graphTypes,
-                graphDataTypes));
+                graphDataTypes)
+        ]);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await graphItemRepository.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Seeded default dashboard graph items.");
     }
 

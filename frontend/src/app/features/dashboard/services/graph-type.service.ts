@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { GraphType } from '../models/graph-type.model';
+import { withIsDeletedParam } from '../models/deleted-filter';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,10 @@ import { GraphType } from '../models/graph-type.model';
 export class GraphTypeService {
   private readonly http = inject(HttpClient);
 
-  getGraphTypes(): Observable<GraphType[]> {
-    return this.http.get<GraphType[]>(`${environment.apiBaseUrl}/api/getGraphTypes`);
+  getGraphTypes(isDeleted = false): Observable<GraphType[]> {
+    return this.http.get<GraphType[]>(
+      `${environment.apiBaseUrl}/api/getGraphTypes`,
+      withIsDeletedParam(isDeleted)
+    );
   }
 }

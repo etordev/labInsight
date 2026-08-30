@@ -43,7 +43,11 @@
   } @else {
     <div class="dashboard-grid">
       @for (item of graphItems(); track item.id) {
-        <app-graph-item [graphItem]="item" />
+        <app-graph-item
+          [graphItem]="item"
+          (edit)="onEditGraph(item)"
+          (remove)="onDeleteGraph(item)"
+        />
       }
     </div>
   }

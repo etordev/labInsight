@@ -10,8 +10,9 @@ public class GraphDataTypesController(IGraphDataTypeService graphDataTypeService
 {
     [HttpGet("getGraphDataTypes")]
     public async Task<ActionResult<IReadOnlyList<GraphDataTypeDto>>> GetGraphDataTypes(
-        CancellationToken cancellationToken)
+        [FromQuery] bool isDeleted = false,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await graphDataTypeService.GetGraphDataTypesAsync(cancellationToken));
+        return Ok(await graphDataTypeService.GetGraphDataTypesAsync(isDeleted, cancellationToken));
     }
 }

@@ -1,5 +1,6 @@
 using LabInsight.Api.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LabInsight.Api.Data;
 
@@ -20,6 +21,7 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.City).IsRequired().HasMaxLength(100);
+            ConfigureAudit(entity);
         });
 
         modelBuilder.Entity<AnalysisCategory>(entity =>
@@ -28,6 +30,7 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.ExpectedProcessingHours).IsRequired().HasPrecision(8, 2);
+            ConfigureAudit(entity);
         });
 
         modelBuilder.Entity<LabAnalysis>(entity =>
@@ -56,6 +59,7 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             entity.HasIndex(e => e.AnalysisCategoryId);
             entity.HasIndex(e => e.ReceivedAt);
             entity.HasIndex(e => e.Status);
+            ConfigureAudit(entity);
         });
 
         modelBuilder.Entity<GraphTypeEntity>(entity =>
@@ -64,6 +68,7 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TechnicalName).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.TechnicalName).IsUnique();
+            ConfigureAudit(entity);
         });
 
         modelBuilder.Entity<GraphDataTypeEntity>(entity =>
@@ -72,6 +77,7 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TechnicalName).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.TechnicalName).IsUnique();
+            ConfigureAudit(entity);
         });
 
         modelBuilder.Entity<GraphItemEntity>(entity =>
@@ -93,6 +99,15 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
                 .HasForeignKey(e => e.GraphDataTypeId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
+            ConfigureAudit(entity);
         });
+    }
+
+    private static void ConfigureAudit<TEntity>(EntityTypeBuilder<TEntity> entity)
+        where TEntity : EntityBase
+    {
+        entity.Property(e => e.IsDeleted).IsRequired().HasDefaultValue(false);
+        entity.Property(e => e.CreatedAt).IsRequired();
+        entity.HasIndex(e => e.IsDeleted);
     }
 }

@@ -9,8 +9,10 @@ namespace LabInsight.Api.Controllers;
 public class GraphTypesController(IGraphTypeService graphTypeService) : ControllerBase
 {
     [HttpGet("getGraphTypes")]
-    public async Task<ActionResult<IReadOnlyList<GraphTypeDto>>> GetGraphTypes(CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<GraphTypeDto>>> GetGraphTypes(
+        [FromQuery] bool isDeleted = false,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await graphTypeService.GetGraphTypesAsync(cancellationToken));
+        return Ok(await graphTypeService.GetGraphTypesAsync(isDeleted, cancellationToken));
     }
 }

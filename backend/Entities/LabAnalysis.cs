@@ -2,9 +2,8 @@ using LabInsight.Api.Enums;
 
 namespace LabInsight.Api.Entities;
 
-public class LabAnalysis
+public class LabAnalysis : EntityBase
 {
-    public int Id { get; set; }
     public required string AnalysisNumber { get; set; }
     public int LaboratoryId { get; set; }
     public int AnalysisCategoryId { get; set; }

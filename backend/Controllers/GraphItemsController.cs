@@ -11,9 +11,10 @@ public class GraphItemsController(IGraphItemService graphItemService, IAnalytics
     [HttpGet("getGraphItemData/{id:int}")]
     public async Task<ActionResult<GraphItemAnalyticsDto>> GetGraphItemData(
         int id,
-        CancellationToken cancellationToken)
+        [FromQuery] bool isDeleted = false,
+        CancellationToken cancellationToken = default)
     {
-        var analytics = await analyticsService.GetGraphItemDataAsync(id, cancellationToken);
+        var analytics = await analyticsService.GetGraphItemDataAsync(id, isDeleted, cancellationToken);
         if (analytics is null)
         {
             return NotFound(new { message = "Graph item was not found." });
@@ -23,9 +24,11 @@ public class GraphItemsController(IGraphItemService graphItemService, IAnalytics
     }
 
     [HttpGet("getGraphItems")]
-    public async Task<ActionResult<IReadOnlyList<GraphItemDto>>> GetGraphItems(CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<GraphItemDto>>> GetGraphItems(
+        [FromQuery] bool isDeleted = false,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await graphItemService.GetGraphItemsAsync(cancellationToken));
+        return Ok(await graphItemService.GetGraphItemsAsync(isDeleted, cancellationToken));
     }
 
     [HttpPost("upsertGraphItem")]
@@ -48,5 +51,17 @@ public class GraphItemsController(IGraphItemService graphItemService, IAnalytics
         }
 
         return BadRequest(new { message = result.Error });
+    }
+
+    [HttpDelete("deleteGraphItem/{id:int}")]
+    public async Task<IActionResult> DeleteGraphItem(int id, CancellationToken cancellationToken)
+    {
+        var deleted = await graphItemService.DeleteGraphItemAsync(id, cancellationToken);
+        if (!deleted)
+        {
+            return NotFound(new { message = "Graph item was not found." });
+        }
+
+        return NoContent();
     }
 }

@@ -1,14 +1,16 @@
 using System.Globalization;
 using System.Text.Json;
-using LabInsight.Api.Data;
 using LabInsight.Api.DTOs;
 using LabInsight.Api.Entities;
 using LabInsight.Api.Enums;
+using LabInsight.Api.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabInsight.Api.Services;
 
-public class AnalyticsService(LabInsightDbContext dbContext) : IAnalyticsService
+public class AnalyticsService(
+    IGraphItemRepository graphItemRepository,
+    ILabAnalysisRepository labAnalysisRepository) : IAnalyticsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -17,21 +19,17 @@ public class AnalyticsService(LabInsightDbContext dbContext) : IAnalyticsService
 
     public async Task<GraphItemAnalyticsDto?> GetGraphItemDataAsync(
         int graphItemId,
+        bool isDeleted,
         CancellationToken cancellationToken)
     {
-        var item = await dbContext.GraphItems
-            .AsNoTracking()
-            .Include(graphItem => graphItem.GraphDataType)
-            .Include(graphItem => graphItem.GraphType)
-            .FirstOrDefaultAsync(graphItem => graphItem.Id == graphItemId, cancellationToken);
-
+        var item = await graphItemRepository.GetWithTypesAsync(graphItemId, isDeleted, cancellationToken);
         if (item is null)
         {
             return null;
         }
 
         var content = DeserializeContent(item.Content);
-        var query = ApplyFilters(dbContext.LabAnalyses.AsNoTracking(), content);
+        var query = ApplyFilters(labAnalysisRepository.QueryForAnalytics(isDeleted), content);
         var dataType = item.GraphDataType.TechnicalName;
         var graphType = item.GraphType.TechnicalName;
 

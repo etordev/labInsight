@@ -1,8 +1,7 @@
 namespace LabInsight.Api.Entities;
 
-public class AnalysisCategory
+public class AnalysisCategory : EntityBase
 {
-    public int Id { get; set; }
     public required string Name { get; set; }
     public required decimal ExpectedProcessingHours { get; set; }
 

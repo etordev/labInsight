@@ -1,6 +1,9 @@
-import { Component, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { GRAPH_DATA_TYPE_UI_BY_NAME } from '../../config/graph-data-type-ui.config';
 import { GRAPH_TYPE_UI_BY_NAME } from '../../config/graph-type-ui.config';
 import { isGraphDataTypeTechnicalName } from '../../models/graph-data-type-technical-name';
@@ -17,8 +20,11 @@ import { PieChartComponent } from '../visualizations/pie-chart.component';
 @Component({
   selector: 'app-graph-item',
   imports: [
+    MatButtonModule,
     MatCardModule,
+    MatIconModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     LineChartComponent,
     BarChartComponent,
     PieChartComponent,
@@ -32,6 +38,8 @@ export class GraphItemComponent {
   private readonly graphItemService = inject(GraphItemService);
 
   readonly graphItem = input.required<GraphItem>();
+  readonly edit = output<void>();
+  readonly remove = output<void>();
   readonly analytics = signal<GraphItemAnalytics | null>(null);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);

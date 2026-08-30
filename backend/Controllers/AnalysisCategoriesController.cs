@@ -10,8 +10,9 @@ public class AnalysisCategoriesController(IAnalysisCategoryService analysisCateg
 {
     [HttpGet("getAnalysisCategories")]
     public async Task<ActionResult<IReadOnlyList<AnalysisCategoryDto>>> GetAnalysisCategories(
-        CancellationToken cancellationToken)
+        [FromQuery] bool isDeleted = false,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await analysisCategoryService.GetAnalysisCategoriesAsync(cancellationToken));
+        return Ok(await analysisCategoryService.GetAnalysisCategoriesAsync(isDeleted, cancellationToken));
     }
 }

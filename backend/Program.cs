@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using LabInsight.Api.Data;
+using LabInsight.Api.Repositories;
 using LabInsight.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<LabInsightDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ILaboratoryRepository, LaboratoryRepository>();
+builder.Services.AddScoped<IAnalysisCategoryRepository, AnalysisCategoryRepository>();
+builder.Services.AddScoped<ILabAnalysisRepository, LabAnalysisRepository>();
+builder.Services.AddScoped<IGraphTypeRepository, GraphTypeRepository>();
+builder.Services.AddScoped<IGraphDataTypeRepository, GraphDataTypeRepository>();
+builder.Services.AddScoped<IGraphItemRepository, GraphItemRepository>();
 builder.Services.AddScoped<DatabaseSeeder>();
 builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
 builder.Services.AddScoped<IAnalysisCategoryService, AnalysisCategoryService>();

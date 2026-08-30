@@ -1,22 +1,26 @@
-using LabInsight.Api.Data;
 using LabInsight.Api.DTOs;
-using Microsoft.EntityFrameworkCore;
+using LabInsight.Api.Repositories;
 
 namespace LabInsight.Api.Services;
 
-public class AnalysisCategoryService(LabInsightDbContext dbContext) : IAnalysisCategoryService
+public class AnalysisCategoryService(IAnalysisCategoryRepository analysisCategoryRepository)
+    : IAnalysisCategoryService
 {
-    public async Task<IReadOnlyList<AnalysisCategoryDto>> GetAnalysisCategoriesAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<AnalysisCategoryDto>> GetAnalysisCategoriesAsync(
+        bool isDeleted,
+        CancellationToken cancellationToken)
     {
-        return await dbContext.AnalysisCategories
-            .AsNoTracking()
-            .OrderBy(c => c.Name)
-            .Select(c => new AnalysisCategoryDto
+        var categories = await analysisCategoryRepository.ListOrderedByNameAsync(
+            isDeleted,
+            cancellationToken);
+
+        return categories
+            .Select(category => new AnalysisCategoryDto
             {
-                Id = c.Id,
-                Name = c.Name,
-                ExpectedProcessingHours = c.ExpectedProcessingHours
+                Id = category.Id,
+                Name = category.Name,
+                ExpectedProcessingHours = category.ExpectedProcessingHours
             })
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 }

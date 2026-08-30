@@ -1,31 +1,36 @@
 @LabInsight.Api_HostAddress = http://localhost:5080
 
-GET {{LabInsight.Api_HostAddress}}/api/getGraphItemData/1
+GET {{LabInsight.Api_HostAddress}}/api/getGraphItemData/1?isDeleted=false
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/getLaboratories
+GET {{LabInsight.Api_HostAddress}}/api/getLaboratories?isDeleted=false
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/getAnalysisCategories
+GET {{LabInsight.Api_HostAddress}}/api/getAnalysisCategories?isDeleted=false
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/getGraphTypes
+GET {{LabInsight.Api_HostAddress}}/api/getGraphTypes?isDeleted=false
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/getGraphDataTypes
+GET {{LabInsight.Api_HostAddress}}/api/getGraphDataTypes?isDeleted=false
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/getAnalyses?page=1&pageSize=50
+GET {{LabInsight.Api_HostAddress}}/api/getAnalyses?page=1&pageSize=50&isDeleted=false
+Accept: application/json
+
+###
+
+GET {{LabInsight.Api_HostAddress}}/api/getGraphItems?isDeleted=false
 Accept: application/json
 
 ###
@@ -54,3 +59,7 @@ Content-Type: application/json
   "graphDataTypeId": 1,
   "content": "{\"filters\":{\"laboratoryId\":1},\"groupBy\":\"MONTH\"}"
 }
+
+###
+
+DELETE {{LabInsight.Api_HostAddress}}/api/deleteGraphItem/1

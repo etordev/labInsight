@@ -10,8 +10,9 @@ public class LaboratoriesController(ILaboratoryService laboratoryService) : Cont
 {
     [HttpGet("getLaboratories")]
     public async Task<ActionResult<IReadOnlyList<LaboratoryDto>>> GetLaboratories(
-        CancellationToken cancellationToken)
+        [FromQuery] bool isDeleted = false,
+        CancellationToken cancellationToken = default)
     {
-        return Ok(await laboratoryService.GetLaboratoriesAsync(cancellationToken));
+        return Ok(await laboratoryService.GetLaboratoriesAsync(isDeleted, cancellationToken));
     }
 }

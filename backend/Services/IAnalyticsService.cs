@@ -4,5 +4,8 @@ namespace LabInsight.Api.Services;
 
 public interface IAnalyticsService
 {
-    Task<GraphItemAnalyticsDto?> GetGraphItemDataAsync(int graphItemId, CancellationToken cancellationToken);
+    Task<GraphItemAnalyticsDto?> GetGraphItemDataAsync(
+        int graphItemId,
+        bool isDeleted,
+        CancellationToken cancellationToken);
 }

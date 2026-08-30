@@ -1,22 +1,22 @@
-using LabInsight.Api.Data;
 using LabInsight.Api.DTOs;
-using Microsoft.EntityFrameworkCore;
+using LabInsight.Api.Repositories;
 
 namespace LabInsight.Api.Services;
 
-public class LaboratoryService(LabInsightDbContext dbContext) : ILaboratoryService
+public class LaboratoryService(ILaboratoryRepository laboratoryRepository) : ILaboratoryService
 {
-    public async Task<IReadOnlyList<LaboratoryDto>> GetLaboratoriesAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<LaboratoryDto>> GetLaboratoriesAsync(
+        bool isDeleted,
+        CancellationToken cancellationToken)
     {
-        return await dbContext.Laboratories
-            .AsNoTracking()
-            .OrderBy(l => l.Name)
-            .Select(l => new LaboratoryDto
+        var laboratories = await laboratoryRepository.ListOrderedByNameAsync(isDeleted, cancellationToken);
+        return laboratories
+            .Select(laboratory => new LaboratoryDto
             {
-                Id = l.Id,
-                Name = l.Name,
-                City = l.City
+                Id = laboratory.Id,
+                Name = laboratory.Name,
+                City = laboratory.City
             })
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 }

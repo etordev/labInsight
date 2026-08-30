@@ -43,3 +43,23 @@
   font-size: 0.85rem;
   line-height: 1.4;
 }
+
+.wizard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.wizard-actions-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.delete-action {
+  color: var(--mat-sys-error);
+}

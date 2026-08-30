@@ -1,37 +1,20 @@
-using LabInsight.Api.Data;
 using LabInsight.Api.DTOs;
 using LabInsight.Api.Entities;
-using Microsoft.EntityFrameworkCore;
+using LabInsight.Api.Repositories;
 
 namespace LabInsight.Api.Services;
 
-public class GraphItemService(LabInsightDbContext dbContext) : IGraphItemService
+public class GraphItemService(
+    IGraphItemRepository graphItemRepository,
+    IGraphTypeRepository graphTypeRepository,
+    IGraphDataTypeRepository graphDataTypeRepository) : IGraphItemService
 {
-    public async Task<IReadOnlyList<GraphItemDto>> GetGraphItemsAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<GraphItemDto>> GetGraphItemsAsync(
+        bool isDeleted,
+        CancellationToken cancellationToken)
     {
-        return await dbContext.GraphItems
-            .AsNoTracking()
-            .OrderBy(i => i.Id)
-            .Select(i => new GraphItemDto
-            {
-                Id = i.Id,
-                Name = i.Name,
-                Description = i.Description,
-                Content = i.Content,
-                GraphTypeId = i.GraphTypeId,
-                GraphDataTypeId = i.GraphDataTypeId,
-                GraphType = new GraphTypeDto
-                {
-                    Id = i.GraphType.Id,
-                    TechnicalName = i.GraphType.TechnicalName
-                },
-                GraphDataType = new GraphDataTypeDto
-                {
-                    Id = i.GraphDataType.Id,
-                    TechnicalName = i.GraphDataType.TechnicalName
-                }
-            })
-            .ToListAsync(cancellationToken);
+        var items = await graphItemRepository.ListWithTypesAsync(isDeleted, cancellationToken);
+        return items.Select(MapDto).ToList();
     }
 
     public async Task<UpsertGraphItemResult> UpsertGraphItemAsync(
@@ -49,15 +32,19 @@ public class GraphItemService(LabInsightDbContext dbContext) : IGraphItemService
             : request.Description.Trim();
         var content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim();
 
-        var graphTypeExists = await dbContext.GraphTypes
-            .AnyAsync(type => type.Id == request.GraphTypeId, cancellationToken);
+        var graphTypeExists = await graphTypeRepository.ExistsAsync(
+            request.GraphTypeId,
+            isDeleted: false,
+            cancellationToken);
         if (!graphTypeExists)
         {
             return new UpsertGraphItemResult(null, "Graph type was not found.", true, false);
         }
 
-        var graphDataTypeExists = await dbContext.GraphDataTypes
-            .AnyAsync(type => type.Id == request.GraphDataTypeId, cancellationToken);
+        var graphDataTypeExists = await graphDataTypeRepository.ExistsAsync(
+            request.GraphDataTypeId,
+            isDeleted: false,
+            cancellationToken);
         if (!graphDataTypeExists)
         {
             return new UpsertGraphItemResult(null, "Graph data type was not found.", true, false);
@@ -68,8 +55,10 @@ public class GraphItemService(LabInsightDbContext dbContext) : IGraphItemService
 
         if (request.Id is > 0)
         {
-            var existing = await dbContext.GraphItems
-                .FirstOrDefaultAsync(item => item.Id == request.Id.Value, cancellationToken);
+            var existing = await graphItemRepository.GetTrackedAsync(
+                request.Id.Value,
+                isDeleted: false,
+                cancellationToken);
 
             if (existing is null)
             {
@@ -91,19 +80,24 @@ public class GraphItemService(LabInsightDbContext dbContext) : IGraphItemService
                 Description = description,
                 Content = content,
                 GraphTypeId = request.GraphTypeId,
-                GraphDataTypeId = request.GraphDataTypeId
+                GraphDataTypeId = request.GraphDataTypeId,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow
             };
 
-            dbContext.GraphItems.Add(entity);
+            graphItemRepository.Add(entity);
             created = true;
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        await dbContext.Entry(entity).Reference(item => item.GraphType).LoadAsync(cancellationToken);
-        await dbContext.Entry(entity).Reference(item => item.GraphDataType).LoadAsync(cancellationToken);
+        await graphItemRepository.SaveChangesAsync(cancellationToken);
+        await graphItemRepository.LoadTypesAsync(entity, cancellationToken);
 
         return new UpsertGraphItemResult(MapDto(entity), null, false, created);
+    }
+
+    public Task<bool> DeleteGraphItemAsync(int id, CancellationToken cancellationToken)
+    {
+        return graphItemRepository.SoftDeleteAsync(id, cancellationToken);
     }
 
     private static GraphItemDto MapDto(GraphItemEntity item) => new()

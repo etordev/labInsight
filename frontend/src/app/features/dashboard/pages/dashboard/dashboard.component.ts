@@ -5,9 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { GraphItemComponent } from '../../components/graph-item/graph-item.component';
+import { confirmDeleteGraph } from '../../components/confirm-dialog/confirm-dialog.component';
 import { GraphItem } from '../../models/graph-item.model';
 import { GraphItemService } from '../../services/graph-item.service';
-import { GraphWizardDialogComponent } from '../../wizard/graph-wizard-dialog.component';
+import { GraphWizardDialogComponent, GraphWizardCloseResult } from '../../wizard/graph-wizard-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,27 +37,75 @@ export class DashboardComponent implements OnInit {
   }
 
   onCreateGraph(): void {
-    this.dialog
-      .open(GraphWizardDialogComponent, {
-        width: 'min(52rem, calc(100vw - 2rem))',
-        maxWidth: '52rem',
-        autoFocus: 'first-tabbable',
-        restoreFocus: true,
-        panelClass: 'graph-wizard-dialog'
-      })
-      .afterClosed()
-      .subscribe((created: GraphItem | undefined) => {
-        if (!created) {
-          return;
-        }
+    this.openWizard();
+  }
 
-        this.graphItems.update((items) => [...items, created]);
-        this.snackBar.open('Graph created successfully.', 'Dismiss', { duration: 4000 });
+  onEditGraph(item: GraphItem): void {
+    this.openWizard(item);
+  }
+
+  onDeleteGraph(item: GraphItem): void {
+    confirmDeleteGraph(this.dialog).subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.graphItemService.deleteGraphItem(item.id).subscribe({
+        next: () => {
+          this.snackBar.open('Graph deleted successfully.', 'Dismiss', { duration: 4000 });
+          this.loadGraphItems();
+        },
+        error: () => {
+          this.snackBar.open('Could not delete the graph. Please try again.', 'Dismiss', {
+            duration: 4000
+          });
+        }
       });
+    });
   }
 
   retry(): void {
     this.loadGraphItems();
+  }
+
+  private openWizard(graphItem?: GraphItem): void {
+    this.dialog
+      .open<GraphWizardDialogComponent, { graphItem?: GraphItem }, GraphWizardCloseResult>(
+        GraphWizardDialogComponent,
+        {
+          width: 'min(52rem, calc(100vw - 2rem))',
+          maxWidth: '52rem',
+          autoFocus: 'first-tabbable',
+          restoreFocus: true,
+          panelClass: 'graph-wizard-dialog',
+          data: graphItem ? { graphItem } : {}
+        }
+      )
+      .afterClosed()
+      .subscribe((result) => this.applyWizardResult(result));
+  }
+
+  private applyWizardResult(result: GraphWizardCloseResult | undefined): void {
+    if (!result) {
+      return;
+    }
+
+    if (result.action === 'deleted') {
+      this.snackBar.open('Graph deleted successfully.', 'Dismiss', { duration: 4000 });
+      this.loadGraphItems();
+      return;
+    }
+
+    if (result.created) {
+      this.graphItems.update((items) => [...items, result.item]);
+      this.snackBar.open('Graph created successfully.', 'Dismiss', { duration: 4000 });
+      return;
+    }
+
+    this.graphItems.update((items) =>
+      items.map((item) => (item.id === result.item.id ? result.item : item))
+    );
+    this.snackBar.open('Graph updated successfully.', 'Dismiss', { duration: 4000 });
   }
 
   private loadGraphItems(): void {

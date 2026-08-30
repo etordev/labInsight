@@ -10,6 +10,7 @@ public class LabAnalysisQuery
     public int? AnalysisCategoryId { get; set; }
     public AnalysisStatus? Status { get; set; }
     public AnalysisPriority? Priority { get; set; }
+    public bool IsDeleted { get; set; } = false;
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 50;
 }

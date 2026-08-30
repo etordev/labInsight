@@ -1,7 +1,10 @@
 import { GRAPH_CONFIG_FIELDS, isConfigFieldVisible } from '../config/graph-config-fields';
+import { GraphWizardFormValue } from '../wizard/graph-wizard-form';
+import { ANALYSIS_PRIORITY_VALUES, AnalysisPriorityValue } from './analysis-priority';
+import { ANALYSIS_STATUS_VALUES, AnalysisStatusValue } from './analysis-status';
 import { GraphDataTypeTechnicalName } from './graph-data-type-technical-name';
 import { GraphItemContent, GraphItemFilters } from './graph-item-content.model';
-import { GraphWizardFormValue } from '../wizard/graph-wizard-form';
+import { GROUP_BY_VALUES, GroupByValue } from './group-by';
 
 export function toDateOnlyString(value: Date): string {
   const year = value.getFullYear();
@@ -62,4 +65,63 @@ export function serializeGraphItemContent(
 ): string | null {
   const content = buildGraphItemContent(graphDataType, value);
   return content ? JSON.stringify(content) : null;
+}
+
+export function parseGraphItemContent(content: string | null | undefined): GraphItemContent {
+  if (!content) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(content) as GraphItemContent;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function parseDateOnlyString(value: string | undefined): Date | null {
+  if (!value) {
+    return null;
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) {
+    return null;
+  }
+
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}
+
+export function parseWizardFormValueFromContent(
+  content: string | null | undefined
+): Pick<
+  GraphWizardFormValue,
+  'dateFrom' | 'dateTo' | 'laboratoryId' | 'analysisCategoryId' | 'priority' | 'status' | 'groupBy'
+> {
+  const parsed = parseGraphItemContent(content);
+  const filters = parsed.filters ?? {};
+
+  return {
+    dateFrom: parseDateOnlyString(filters.dateFrom),
+    dateTo: parseDateOnlyString(filters.dateTo),
+    laboratoryId: typeof filters.laboratoryId === 'number' ? filters.laboratoryId : null,
+    analysisCategoryId:
+      typeof filters.analysisCategoryId === 'number' ? filters.analysisCategoryId : null,
+    priority: isPriority(filters.priority) ? filters.priority : null,
+    status: isStatus(filters.status) ? filters.status : null,
+    groupBy: isGroupBy(parsed.groupBy) ? parsed.groupBy : null
+  };
+}
+
+function isPriority(value: string | undefined): value is AnalysisPriorityValue {
+  return value != null && Object.values(ANALYSIS_PRIORITY_VALUES).includes(value as AnalysisPriorityValue);
+}
+
+function isStatus(value: string | undefined): value is AnalysisStatusValue {
+  return value != null && Object.values(ANALYSIS_STATUS_VALUES).includes(value as AnalysisStatusValue);
+}
+
+function isGroupBy(value: string | undefined): value is GroupByValue {
+  return value != null && Object.values(GROUP_BY_VALUES).includes(value as GroupByValue);
 }

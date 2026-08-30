@@ -1,8 +1,7 @@
 namespace LabInsight.Api.Entities;
 
-public class Laboratory
+public class Laboratory : EntityBase
 {
-    public int Id { get; set; }
     public required string Name { get; set; }
     public required string City { get; set; }
 

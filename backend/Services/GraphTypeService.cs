@@ -1,21 +1,24 @@
-using LabInsight.Api.Data;
 using LabInsight.Api.DTOs;
-using Microsoft.EntityFrameworkCore;
+using LabInsight.Api.Repositories;
 
 namespace LabInsight.Api.Services;
 
-public class GraphTypeService(LabInsightDbContext dbContext) : IGraphTypeService
+public class GraphTypeService(IGraphTypeRepository graphTypeRepository) : IGraphTypeService
 {
-    public async Task<IReadOnlyList<GraphTypeDto>> GetGraphTypesAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<GraphTypeDto>> GetGraphTypesAsync(
+        bool isDeleted,
+        CancellationToken cancellationToken)
     {
-        return await dbContext.GraphTypes
-            .AsNoTracking()
-            .OrderBy(t => t.TechnicalName)
-            .Select(t => new GraphTypeDto
+        var types = await graphTypeRepository.ListOrderedByTechnicalNameAsync(
+            isDeleted,
+            cancellationToken);
+
+        return types
+            .Select(type => new GraphTypeDto
             {
-                Id = t.Id,
-                TechnicalName = t.TechnicalName
+                Id = type.Id,
+                TechnicalName = type.TechnicalName
             })
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 }
