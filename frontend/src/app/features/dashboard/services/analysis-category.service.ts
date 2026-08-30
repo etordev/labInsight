@@ -11,6 +11,6 @@ export class AnalysisCategoryService {
   private readonly http = inject(HttpClient);
 
   getAnalysisCategories(): Observable<AnalysisCategory[]> {
-    return this.http.get<AnalysisCategory[]>(`${environment.apiBaseUrl}/api/analysis-categories`);
+    return this.http.get<AnalysisCategory[]>(`${environment.apiBaseUrl}/api/getAnalysisCategories`);
   }
 }

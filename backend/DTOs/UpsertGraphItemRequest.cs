@@ -2,8 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LabInsight.Api.DTOs;
 
-public class CreateGraphItemRequest
+public class UpsertGraphItemRequest
 {
+    public int? Id { get; set; }
+
     [Required]
     [MaxLength(200)]
     public required string Name { get; set; }

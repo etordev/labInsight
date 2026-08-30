@@ -124,7 +124,7 @@ export class GraphWizardDialogComponent implements OnInit {
     this.createError.set(null);
 
     this.graphItemService
-      .createGraphItem({
+      .upsertGraphItem({
         name: value.name.trim(),
         description: value.description.trim() || null,
         graphTypeId,

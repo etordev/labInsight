@@ -9,7 +9,7 @@ public class LabAnalysisService(LabInsightDbContext dbContext) : ILabAnalysisSer
     private const int DefaultPageSize = 50;
     private const int MaxPageSize = 200;
 
-    public async Task<PagedResultDto<LabAnalysisDto>> GetAsync(
+    public async Task<PagedResultDto<LabAnalysisDto>> GetAnalysesAsync(
         LabAnalysisQuery query,
         CancellationToken cancellationToken)
     {

@@ -11,6 +11,6 @@ export class GraphDataTypeService {
   private readonly http = inject(HttpClient);
 
   getGraphDataTypes(): Observable<GraphDataType[]> {
-    return this.http.get<GraphDataType[]>(`${environment.apiBaseUrl}/api/graph-data-types`);
+    return this.http.get<GraphDataType[]>(`${environment.apiBaseUrl}/api/getGraphDataTypes`);
   }
 }

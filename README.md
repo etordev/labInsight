@@ -93,4 +93,4 @@ npm start
 
 Angular: http://localhost:4200
 
-The dashboard loads graph items from `GET http://localhost:5080/api/graph-items`. The API base URL is configured in `frontend/src/environments/environment.ts`.
+The dashboard loads graph items from `GET http://localhost:5080/api/getGraphItems`. The API base URL is configured in `frontend/src/environments/environment.ts`.

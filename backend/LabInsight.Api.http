@@ -1,41 +1,55 @@
 @LabInsight.Api_HostAddress = http://localhost:5080
 
-GET {{LabInsight.Api_HostAddress}}/api/graph-items
+GET {{LabInsight.Api_HostAddress}}/api/getGraphItems
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/laboratories
+GET {{LabInsight.Api_HostAddress}}/api/getLaboratories
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/analysis-categories
+GET {{LabInsight.Api_HostAddress}}/api/getAnalysisCategories
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/graph-types
+GET {{LabInsight.Api_HostAddress}}/api/getGraphTypes
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/graph-data-types
+GET {{LabInsight.Api_HostAddress}}/api/getGraphDataTypes
 Accept: application/json
 
 ###
 
-GET {{LabInsight.Api_HostAddress}}/api/analyses?page=1&pageSize=50
+GET {{LabInsight.Api_HostAddress}}/api/getAnalyses?page=1&pageSize=50
 Accept: application/json
 
 ###
 
-POST {{LabInsight.Api_HostAddress}}/api/graph-items
+POST {{LabInsight.Api_HostAddress}}/api/upsertGraphItem
 Content-Type: application/json
 
 {
   "name": "Monthly Analysis Volume",
   "description": "Monthly volume for Frankfurt",
+  "graphTypeId": 2,
+  "graphDataTypeId": 1,
+  "content": "{\"filters\":{\"laboratoryId\":1},\"groupBy\":\"MONTH\"}"
+}
+
+###
+
+POST {{LabInsight.Api_HostAddress}}/api/upsertGraphItem
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Monthly Analysis Volume",
+  "description": "Updated description",
   "graphTypeId": 2,
   "graphDataTypeId": 1,
   "content": "{\"filters\":{\"laboratoryId\":1},\"groupBy\":\"MONTH\"}"

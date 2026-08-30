@@ -5,25 +5,27 @@ using Microsoft.AspNetCore.Mvc;
 namespace LabInsight.Api.Controllers;
 
 [ApiController]
-[Route("api/graph-items")]
+[Route("api")]
 public class GraphItemsController(IGraphItemService graphItemService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<GraphItemDto>>> GetAll(CancellationToken cancellationToken)
+    [HttpGet("getGraphItems")]
+    public async Task<ActionResult<IReadOnlyList<GraphItemDto>>> GetGraphItems(CancellationToken cancellationToken)
     {
-        return Ok(await graphItemService.GetAllAsync(cancellationToken));
+        return Ok(await graphItemService.GetGraphItemsAsync(cancellationToken));
     }
 
-    [HttpPost]
-    public async Task<ActionResult<GraphItemDto>> Create(
-        [FromBody] CreateGraphItemRequest request,
+    [HttpPost("upsertGraphItem")]
+    public async Task<ActionResult<GraphItemDto>> UpsertGraphItem(
+        [FromBody] UpsertGraphItemRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await graphItemService.CreateAsync(request, cancellationToken);
+        var result = await graphItemService.UpsertGraphItemAsync(request, cancellationToken);
 
         if (result.Item is not null)
         {
-            return Created($"/api/graph-items/{result.Item.Id}", result.Item);
+            return result.Created
+                ? Created($"/api/getGraphItems", result.Item)
+                : Ok(result.Item);
         }
 
         if (result.NotFound)

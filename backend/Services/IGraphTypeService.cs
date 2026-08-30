@@ -4,5 +4,5 @@ namespace LabInsight.Api.Services;
 
 public interface IGraphTypeService
 {
-    Task<IReadOnlyList<GraphTypeDto>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<GraphTypeDto>> GetGraphTypesAsync(CancellationToken cancellationToken);
 }

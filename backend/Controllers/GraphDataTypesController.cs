@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace LabInsight.Api.Controllers;
 
 [ApiController]
-[Route("api/graph-data-types")]
+[Route("api")]
 public class GraphDataTypesController(IGraphDataTypeService graphDataTypeService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<GraphDataTypeDto>>> GetAll(CancellationToken cancellationToken)
+    [HttpGet("getGraphDataTypes")]
+    public async Task<ActionResult<IReadOnlyList<GraphDataTypeDto>>> GetGraphDataTypes(
+        CancellationToken cancellationToken)
     {
-        return Ok(await graphDataTypeService.GetAllAsync(cancellationToken));
+        return Ok(await graphDataTypeService.GetGraphDataTypesAsync(cancellationToken));
     }
 }

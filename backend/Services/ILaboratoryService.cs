@@ -4,5 +4,5 @@ namespace LabInsight.Api.Services;
 
 public interface ILaboratoryService
 {
-    Task<IReadOnlyList<LaboratoryDto>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<LaboratoryDto>> GetLaboratoriesAsync(CancellationToken cancellationToken);
 }

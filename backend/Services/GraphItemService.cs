@@ -7,7 +7,7 @@ namespace LabInsight.Api.Services;
 
 public class GraphItemService(LabInsightDbContext dbContext) : IGraphItemService
 {
-    public async Task<IReadOnlyList<GraphItemDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<GraphItemDto>> GetGraphItemsAsync(CancellationToken cancellationToken)
     {
         return await dbContext.GraphItems
             .AsNoTracking()
@@ -34,50 +34,76 @@ public class GraphItemService(LabInsightDbContext dbContext) : IGraphItemService
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<CreateGraphItemResult> CreateAsync(
-        CreateGraphItemRequest request,
+    public async Task<UpsertGraphItemResult> UpsertGraphItemAsync(
+        UpsertGraphItemRequest request,
         CancellationToken cancellationToken)
     {
         var name = request.Name.Trim();
         if (string.IsNullOrWhiteSpace(name))
         {
-            return new CreateGraphItemResult(null, "Name is required.", false);
+            return new UpsertGraphItemResult(null, "Name is required.", false, false);
         }
 
         var description = string.IsNullOrWhiteSpace(request.Description)
             ? null
             : request.Description.Trim();
+        var content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim();
 
         var graphTypeExists = await dbContext.GraphTypes
             .AnyAsync(type => type.Id == request.GraphTypeId, cancellationToken);
         if (!graphTypeExists)
         {
-            return new CreateGraphItemResult(null, "Graph type was not found.", true);
+            return new UpsertGraphItemResult(null, "Graph type was not found.", true, false);
         }
 
         var graphDataTypeExists = await dbContext.GraphDataTypes
             .AnyAsync(type => type.Id == request.GraphDataTypeId, cancellationToken);
         if (!graphDataTypeExists)
         {
-            return new CreateGraphItemResult(null, "Graph data type was not found.", true);
+            return new UpsertGraphItemResult(null, "Graph data type was not found.", true, false);
         }
 
-        var entity = new GraphItemEntity
-        {
-            Name = name,
-            Description = description,
-            Content = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim(),
-            GraphTypeId = request.GraphTypeId,
-            GraphDataTypeId = request.GraphDataTypeId
-        };
+        GraphItemEntity entity;
+        var created = false;
 
-        dbContext.GraphItems.Add(entity);
+        if (request.Id is > 0)
+        {
+            var existing = await dbContext.GraphItems
+                .FirstOrDefaultAsync(item => item.Id == request.Id.Value, cancellationToken);
+
+            if (existing is null)
+            {
+                return new UpsertGraphItemResult(null, "Graph item was not found.", true, false);
+            }
+
+            entity = existing;
+            entity.Name = name;
+            entity.Description = description;
+            entity.Content = content;
+            entity.GraphTypeId = request.GraphTypeId;
+            entity.GraphDataTypeId = request.GraphDataTypeId;
+        }
+        else
+        {
+            entity = new GraphItemEntity
+            {
+                Name = name,
+                Description = description,
+                Content = content,
+                GraphTypeId = request.GraphTypeId,
+                GraphDataTypeId = request.GraphDataTypeId
+            };
+
+            dbContext.GraphItems.Add(entity);
+            created = true;
+        }
+
         await dbContext.SaveChangesAsync(cancellationToken);
 
         await dbContext.Entry(entity).Reference(item => item.GraphType).LoadAsync(cancellationToken);
         await dbContext.Entry(entity).Reference(item => item.GraphDataType).LoadAsync(cancellationToken);
 
-        return new CreateGraphItemResult(MapDto(entity), null, false);
+        return new UpsertGraphItemResult(MapDto(entity), null, false, created);
     }
 
     private static GraphItemDto MapDto(GraphItemEntity item) => new()

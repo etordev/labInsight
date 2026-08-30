@@ -6,7 +6,7 @@ namespace LabInsight.Api.Services;
 
 public class LaboratoryService(LabInsightDbContext dbContext) : ILaboratoryService
 {
-    public async Task<IReadOnlyList<LaboratoryDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<LaboratoryDto>> GetLaboratoriesAsync(CancellationToken cancellationToken)
     {
         return await dbContext.Laboratories
             .AsNoTracking()

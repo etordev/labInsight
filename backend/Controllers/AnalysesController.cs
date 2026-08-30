@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace LabInsight.Api.Controllers;
 
 [ApiController]
-[Route("api/analyses")]
+[Route("api")]
 public class AnalysesController(ILabAnalysisService labAnalysisService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<PagedResultDto<LabAnalysisDto>>> Get(
+    [HttpGet("getAnalyses")]
+    public async Task<ActionResult<PagedResultDto<LabAnalysisDto>>> GetAnalyses(
         [FromQuery] LabAnalysisQuery query,
         CancellationToken cancellationToken)
     {
-        return Ok(await labAnalysisService.GetAsync(query, cancellationToken));
+        return Ok(await labAnalysisService.GetAnalysesAsync(query, cancellationToken));
     }
 }

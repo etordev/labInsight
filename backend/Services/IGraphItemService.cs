@@ -4,11 +4,11 @@ namespace LabInsight.Api.Services;
 
 public interface IGraphItemService
 {
-    Task<IReadOnlyList<GraphItemDto>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<GraphItemDto>> GetGraphItemsAsync(CancellationToken cancellationToken);
 
-    Task<CreateGraphItemResult> CreateAsync(
-        CreateGraphItemRequest request,
+    Task<UpsertGraphItemResult> UpsertGraphItemAsync(
+        UpsertGraphItemRequest request,
         CancellationToken cancellationToken);
 }
 
-public sealed record CreateGraphItemResult(GraphItemDto? Item, string? Error, bool NotFound);
+public sealed record UpsertGraphItemResult(GraphItemDto? Item, string? Error, bool NotFound, bool Created);

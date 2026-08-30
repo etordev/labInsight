@@ -6,7 +6,7 @@ namespace LabInsight.Api.Services;
 
 public class GraphTypeService(LabInsightDbContext dbContext) : IGraphTypeService
 {
-    public async Task<IReadOnlyList<GraphTypeDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<GraphTypeDto>> GetGraphTypesAsync(CancellationToken cancellationToken)
     {
         return await dbContext.GraphTypes
             .AsNoTracking()

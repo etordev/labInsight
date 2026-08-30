@@ -4,5 +4,5 @@ namespace LabInsight.Api.Services;
 
 public interface IAnalysisCategoryService
 {
-    Task<IReadOnlyList<AnalysisCategoryDto>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<AnalysisCategoryDto>> GetAnalysisCategoriesAsync(CancellationToken cancellationToken);
 }

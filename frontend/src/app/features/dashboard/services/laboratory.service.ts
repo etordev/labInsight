@@ -11,6 +11,6 @@ export class LaboratoryService {
   private readonly http = inject(HttpClient);
 
   getLaboratories(): Observable<Laboratory[]> {
-    return this.http.get<Laboratory[]>(`${environment.apiBaseUrl}/api/laboratories`);
+    return this.http.get<Laboratory[]>(`${environment.apiBaseUrl}/api/getLaboratories`);
   }
 }

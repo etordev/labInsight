@@ -6,7 +6,7 @@ namespace LabInsight.Api.Services;
 
 public class AnalysisCategoryService(LabInsightDbContext dbContext) : IAnalysisCategoryService
 {
-    public async Task<IReadOnlyList<AnalysisCategoryDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<AnalysisCategoryDto>> GetAnalysisCategoriesAsync(CancellationToken cancellationToken)
     {
         return await dbContext.AnalysisCategories
             .AsNoTracking()
