@@ -37,8 +37,16 @@
 }
 
 .create-button,
-.rearrange-button {
+.rearrange-button,
+.abort-action {
   flex-shrink: 0;
+}
+
+.abort-action {
+  --mdc-filled-button-container-color: #ef6c00;
+  --mdc-filled-button-label-text-color: #fff;
+  --mat-button-filled-container-color: #ef6c00;
+  --mat-button-filled-label-text-color: #fff;
 }
 
 .toolbar-actions {

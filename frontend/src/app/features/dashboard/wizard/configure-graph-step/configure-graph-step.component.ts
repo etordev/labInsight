@@ -15,6 +15,7 @@ import {
   GRAPH_NAME_MAX_LENGTH
 } from '../graph-wizard-form';
 import { GraphWizardState } from '../graph-wizard-state';
+import { WizardSelectionSummaryComponent } from '../wizard-selection-summary.component';
 
 @Component({
   selector: 'app-configure-graph-step',
@@ -24,7 +25,8 @@ import { GraphWizardState } from '../graph-wizard-state';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    WizardSelectionSummaryComponent
   ],
   templateUrl: './configure-graph-step.component.html',
   styleUrl: './configure-graph-step.component.scss'

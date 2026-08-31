@@ -9,12 +9,13 @@
       <div class="toolbar-actions">
         @if (isRearranging()) {
           <button
-            mat-stroked-button
+            mat-flat-button
+            class="abort-action"
             type="button"
             [disabled]="isSavingOrder()"
             (click)="onAbortRearrange()"
           >
-            Abort
+            Cancel
           </button>
           <button
             mat-flat-button

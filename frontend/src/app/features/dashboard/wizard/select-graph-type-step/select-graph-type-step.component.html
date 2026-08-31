@@ -2,9 +2,7 @@
   <header class="wizard-step-heading">
     <h3 id="select-graph-type-title">Select Graph Type</h3>
     <p id="select-graph-type-subtitle">Choose how you want to visualize the selected data.</p>
-    @if (selectedDataLabel(); as dataLabel) {
-      <p class="selected-data-context">Selected data: {{ dataLabel }}</p>
-    }
+    <app-wizard-selection-summary />
   </header>
 
   <div

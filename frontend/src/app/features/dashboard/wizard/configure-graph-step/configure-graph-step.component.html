@@ -2,6 +2,7 @@
   <header class="wizard-step-heading">
     <h3 id="configure-graph-title">Configure Graph</h3>
     <p id="configure-graph-subtitle">Configure the graph details and optional filters.</p>
+    <app-wizard-selection-summary [showGraphType]="true" />
   </header>
 
   @if (catalog.hasError()) {

@@ -43,7 +43,7 @@
 <mat-dialog-actions class="wizard-actions">
   @if (state.isEditing()) {
     <button
-      mat-button
+      mat-flat-button
       class="delete-action"
       type="button"
       [disabled]="isSaving()"
@@ -55,7 +55,15 @@
 
   <div class="wizard-actions-end">
     @if (step() === 1) {
-      <button mat-button type="button" [disabled]="isSaving()" (click)="close()">Cancel</button>
+      <button
+        mat-flat-button
+        class="cancel-action"
+        type="button"
+        [disabled]="isSaving()"
+        (click)="close()"
+      >
+        Cancel
+      </button>
       <button
         mat-flat-button
         type="button"
