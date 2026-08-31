@@ -7,7 +7,7 @@ import { CHART_COLORS } from './chart-colors';
 @Component({
   selector: 'app-chart-view',
   imports: [BaseChartDirective],
-  host: { style: 'display:block;width:100%;min-width:0;max-width:100%' },
+  host: { style: 'display:block;width:100%;min-width:0;max-width:100%;height:100%;flex:1' },
   template: `
     <div class="chart-scroll">
       <div class="chart-host" [style.min-width.px]="minWidthPx()">
@@ -23,14 +23,16 @@ import { CHART_COLORS } from './chart-colors';
   styles: `
     .chart-scroll {
       width: 100%;
+      height: 100%;
       min-width: 0;
+      min-height: 0;
     }
 
     .chart-host {
       position: relative;
       box-sizing: border-box;
       min-width: 35rem;
-      height: 20rem;
+      height: 100%;
     }
   `
 })

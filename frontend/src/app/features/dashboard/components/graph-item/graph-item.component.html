@@ -32,27 +32,31 @@
       <span class="meta-line">{{ dataTypeLabel() }} · {{ graphTypeLabel() }}</span>
     </mat-card-subtitle>
   </mat-card-header>
-  @if (showsDateRange() && !rearrangeMode()) {
-    <form class="date-range-filters" [formGroup]="dateFilters" (click)="$event.stopPropagation()">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Date from</mat-label>
-        <input matInput [matDatepicker]="fromPicker" formControlName="dateFrom" (dateChange)="onDateFilterChange()" />
-        <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
-        <mat-datepicker #fromPicker />
-      </mat-form-field>
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Date to</mat-label>
-        <input matInput [matDatepicker]="toPicker" formControlName="dateTo" (dateChange)="onDateFilterChange()" />
-        <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
-        <mat-datepicker #toPicker />
-      </mat-form-field>
-      @if (hasInvalidDateRange()) {
-        <p class="date-range-error">Date from must not be later than date to.</p>
-      } @else if (!dateFilters.controls.dateFrom.value && !dateFilters.controls.dateTo.value) {
-        <p class="date-range-hint">Empty dates use the last 12 months.</p>
-      }
-    </form>
-  }
+  <div class="filter-slot">
+    @if (showsDateRange() && !rearrangeMode()) {
+      <form class="date-range-filters" [formGroup]="dateFilters" (click)="$event.stopPropagation()">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Date from</mat-label>
+          <input matInput [matDatepicker]="fromPicker" formControlName="dateFrom" (dateChange)="onDateFilterChange()" />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+          <mat-datepicker #fromPicker />
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Date to</mat-label>
+          <input matInput [matDatepicker]="toPicker" formControlName="dateTo" (dateChange)="onDateFilterChange()" />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+          <mat-datepicker #toPicker />
+        </mat-form-field>
+        <p class="date-range-message" [class.is-error]="hasInvalidDateRange()">
+          @if (hasInvalidDateRange()) {
+            Date from must not be later than date to.
+          } @else if (!dateFilters.controls.dateFrom.value && !dateFilters.controls.dateTo.value) {
+            Empty dates use the last 12 months.
+          }
+        </p>
+      </form>
+    }
+  </div>
   <mat-card-content>
     @if (isLoading()) {
       <div class="widget-state">
