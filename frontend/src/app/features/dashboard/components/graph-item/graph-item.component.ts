@@ -21,7 +21,9 @@ import {
 import { isGraphDataTypeTechnicalName } from '../../models/graph-data-type-technical-name';
 import { GraphItemAnalytics } from '../../models/graph-item-analytics.model';
 import { GraphItem } from '../../models/graph-item.model';
+import { buildGraphScopeChips } from '../../models/graph-item-scope-chips';
 import { GRAPH_TYPE_TECHNICAL_NAMES, isGraphTypeTechnicalName } from '../../models/graph-type-technical-name';
+import { FilterOptionCatalog } from '../../services/filter-option-catalog.service';
 import { GraphItemService } from '../../services/graph-item.service';
 import { BarChartComponent } from '../visualizations/bar-chart.component';
 import { DataGridComponent } from '../visualizations/data-grid.component';
@@ -55,6 +57,7 @@ import { PieChartComponent } from '../visualizations/pie-chart.component';
 })
 export class GraphItemComponent {
   private readonly graphItemService = inject(GraphItemService);
+  private readonly filterOptions = inject(FilterOptionCatalog);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly graphItem = input.required<GraphItem>();
@@ -76,6 +79,18 @@ export class GraphItemComponent {
   readonly showsDateRange = computed(() => {
     const name = this.graphItem().graphDataType.technicalName;
     return isGraphDataTypeTechnicalName(name) && supportsDateRange(name);
+  });
+
+  readonly scopeChips = computed(() => {
+    this.filterOptions.laboratories();
+    this.filterOptions.analysisCategories();
+    const item = this.graphItem();
+    return buildGraphScopeChips(item.content, item.graphDataType.technicalName, this.filterOptions);
+  });
+
+  readonly description = computed(() => {
+    const value = this.graphItem().description?.trim();
+    return value ? value : null;
   });
 
   constructor() {

@@ -27,3 +27,10 @@ body {
 .graph-wizard-dialog .mat-mdc-dialog-surface {
   padding-bottom: 0.5rem;
 }
+
+.graph-description-tooltip {
+  max-width: min(22rem, calc(100vw - 2rem));
+  white-space: pre-wrap;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}

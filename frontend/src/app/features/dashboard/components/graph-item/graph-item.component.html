@@ -24,12 +24,36 @@
     }
   </div>
   <mat-card-header>
-    <mat-card-title>{{ graphItem().name }}</mat-card-title>
-    <mat-card-subtitle>
-      @if (graphItem().description) {
-        <span>{{ graphItem().description }}</span>
+    <mat-card-title>
+      <span class="title-text">{{ graphItem().name }}</span>
+      @if (description(); as text) {
+        <span
+          class="description-info"
+          tabindex="0"
+          role="img"
+          [attr.aria-label]="text"
+          [matTooltip]="text"
+          matTooltipClass="graph-description-tooltip"
+          matTooltipPosition="below"
+          [matTooltipShowDelay]="200"
+          (click)="$event.stopPropagation()"
+        >
+          <mat-icon>info</mat-icon>
+        </span>
       }
+    </mat-card-title>
+    <mat-card-subtitle>
       <span class="meta-line">{{ dataTypeLabel() }} · {{ graphTypeLabel() }}</span>
+      @if (scopeChips().length > 0) {
+        <div class="scope-chips">
+          @for (chip of scopeChips(); track chip.label) {
+            <span class="scope-chip">
+              <span class="scope-chip-label">{{ chip.label }}</span>
+              {{ chip.value }}
+            </span>
+          }
+        </div>
+      }
     </mat-card-subtitle>
   </mat-card-header>
   <div class="filter-slot">
