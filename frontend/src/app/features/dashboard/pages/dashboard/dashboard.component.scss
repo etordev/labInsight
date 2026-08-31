@@ -127,6 +127,12 @@
   height: 100%;
 }
 
+.grid-item.is-drop-slot {
+  background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+  border-radius: 1.25rem;
+}
+
 .grid-item-drag {
   position: relative;
   display: flex;
@@ -167,9 +173,9 @@
 }
 
 .dashboard-grid.is-rearranging .grid-item-drag.cdk-drag-dragging {
-  z-index: 5;
+  z-index: 20;
   cursor: grabbing;
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--mat-sys-shadow) 28%, transparent);
+  box-shadow: 0 16px 36px color-mix(in srgb, var(--mat-sys-shadow) 30%, transparent);
 }
 
 @media (min-width: 960px) {

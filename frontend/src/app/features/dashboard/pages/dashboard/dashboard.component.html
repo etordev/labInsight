@@ -74,12 +74,19 @@
   } @else {
     <div class="dashboard-grid" [class.is-rearranging]="isRearranging()">
       @for (item of graphItems(); track item.id) {
-        <div class="grid-item">
+        <div
+          class="grid-item"
+          [class.is-drop-slot]="draggingId() === item.id"
+          [style.order]="displayIndex(item.id)"
+          [attr.data-graph-id]="item.id"
+        >
           <div
             class="grid-item-drag"
             cdkDrag
             [cdkDragData]="item"
             [cdkDragDisabled]="!isRearranging()"
+            (cdkDragStarted)="onDragStarted($event)"
+            (cdkDragMoved)="onDragMoved($event)"
             (cdkDragEnded)="onDragEnded($event)"
           >
             @if (isRearranging()) {
