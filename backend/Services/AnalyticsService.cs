@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using LabInsight.Api.Catalog;
 using LabInsight.Api.DTOs;
 using LabInsight.Api.Entities;
 using LabInsight.Api.Enums;
@@ -29,7 +30,10 @@ public class AnalyticsService(
         }
 
         var content = DeserializeContent(item.Content);
-        var query = ApplyFilters(labAnalysisRepository.QueryForAnalytics(isDeleted), content);
+        var query = ApplyFilters(
+            labAnalysisRepository.QueryForAnalytics(isDeleted),
+            content,
+            item.GraphDataType.TechnicalName);
         var dataType = item.GraphDataType.TechnicalName;
         var graphType = item.GraphType.TechnicalName;
 
@@ -72,22 +76,15 @@ public class AnalyticsService(
 
     private static IQueryable<LabAnalysis> ApplyFilters(
         IQueryable<LabAnalysis> query,
-        GraphItemContentPayload content)
+        GraphItemContentPayload content,
+        string graphDataType)
     {
         var filters = content.Filters;
+        query = ApplyReceivedAtDateRange(query, filters, graphDataType);
+
         if (filters is null)
         {
             return query;
-        }
-
-        if (TryParseDate(filters.DateFrom, endOfDay: false, out var dateFrom))
-        {
-            query = query.Where(analysis => analysis.ReceivedAt >= dateFrom);
-        }
-
-        if (TryParseDate(filters.DateTo, endOfDay: true, out var dateTo))
-        {
-            query = query.Where(analysis => analysis.ReceivedAt <= dateTo);
         }
 
         if (filters.LaboratoryId is > 0)
@@ -108,6 +105,41 @@ public class AnalyticsService(
         if (Enum.TryParse<AnalysisStatus>(filters.Status, ignoreCase: true, out var status))
         {
             query = query.Where(analysis => analysis.Status == status);
+        }
+
+        return query;
+    }
+
+    private static IQueryable<LabAnalysis> ApplyReceivedAtDateRange(
+        IQueryable<LabAnalysis> query,
+        GraphItemFilterPayload? filters,
+        string graphDataType)
+    {
+        if (!GraphMetadata.SupportsDateRange(graphDataType))
+        {
+            return query;
+        }
+
+        var hasFrom = TryParseDate(filters?.DateFrom, endOfDay: false, out var dateFrom);
+        var hasTo = TryParseDate(filters?.DateTo, endOfDay: true, out var dateTo);
+
+        if (!hasFrom && !hasTo)
+        {
+            var todayUtc = DateTime.UtcNow.Date;
+            dateFrom = DateTime.SpecifyKind(todayUtc.AddMonths(-12), DateTimeKind.Utc);
+            dateTo = DateTime.SpecifyKind(todayUtc.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+            hasFrom = true;
+            hasTo = true;
+        }
+
+        if (hasFrom)
+        {
+            query = query.Where(analysis => analysis.ReceivedAt >= dateFrom);
+        }
+
+        if (hasTo)
+        {
+            query = query.Where(analysis => analysis.ReceivedAt <= dateTo);
         }
 
         return query;

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace LabInsight.Api.Catalog;
 
 public static class GraphMetadata
@@ -22,4 +24,16 @@ public static class GraphMetadata
         "COMPLETION_RATE",
         "DELAYED_ANALYSES"
     ];
+
+    public static readonly HashSet<string> DateRangeGraphDataTypes = new(StringComparer.Ordinal)
+    {
+        "ANALYSIS_VOLUME",
+        "PROCESSING_TIME",
+        "COMPLETION_RATE"
+    };
+
+    public static bool SupportsDateRange(string graphDataTypeTechnicalName)
+    {
+        return DateRangeGraphDataTypes.Contains(graphDataTypeTechnicalName);
+    }
 }
