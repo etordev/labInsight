@@ -8,6 +8,7 @@ export interface GraphItem {
   content: string | null;
   graphTypeId: number;
   graphDataTypeId: number;
+  ordering: number;
   graphType: GraphType;
   graphDataType: GraphDataType;
 }

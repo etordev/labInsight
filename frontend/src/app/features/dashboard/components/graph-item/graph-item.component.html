@@ -1,25 +1,27 @@
 <mat-card class="graph-item-card" appearance="outlined">
   <div class="widget-actions">
-    <button
-      mat-icon-button
-      type="button"
-      aria-label="Delete graph"
-      matTooltip="Delete graph"
-      matTooltipPosition="below"
-      (click)="remove.emit()"
-    >
-      <mat-icon>delete_outline</mat-icon>
-    </button>
-    <button
-      mat-icon-button
-      type="button"
-      aria-label="Edit graph"
-      matTooltip="Edit graph"
-      matTooltipPosition="below"
-      (click)="edit.emit()"
-    >
-      <mat-icon>edit</mat-icon>
-    </button>
+    @if (!rearrangeMode()) {
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Delete graph"
+        matTooltip="Delete graph"
+        matTooltipPosition="below"
+        (click)="remove.emit()"
+      >
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Edit graph"
+        matTooltip="Edit graph"
+        matTooltipPosition="below"
+        (click)="edit.emit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    }
   </div>
   <mat-card-header>
     <mat-card-title>{{ graphItem().name }}</mat-card-title>

@@ -87,6 +87,8 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Content);
+            entity.Property(e => e.Ordering).IsRequired();
+            entity.HasIndex(e => e.Ordering);
 
             entity.HasOne(e => e.GraphType)
                 .WithMany(t => t.GraphItems)

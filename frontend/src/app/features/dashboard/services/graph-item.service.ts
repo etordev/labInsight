@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { GraphItem } from '../models/graph-item.model';
 import { GraphItemAnalytics } from '../models/graph-item-analytics.model';
+import { GraphOrderingUpdate } from '../models/graph-ordering-update.model';
 import { withIsDeletedParam } from '../models/deleted-filter';
 import { UpsertGraphItemRequest } from '../models/upsert-graph-item-request.model';
 
@@ -34,5 +35,9 @@ export class GraphItemService {
 
   deleteGraphItem(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiBaseUrl}/api/deleteGraphItem/${id}`);
+  }
+
+  updateGraphOrdering(items: GraphOrderingUpdate[]): Observable<void> {
+    return this.http.post<void>(`${this.apiBaseUrl}/api/updateGraphOrdering`, items);
   }
 }

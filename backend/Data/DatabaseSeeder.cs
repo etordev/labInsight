@@ -199,6 +199,7 @@ public class DatabaseSeeder(
                 "LINE_CHART",
                 "ANALYSIS_VOLUME",
                 """{"groupBy":"MONTH"}""",
+                1,
                 graphTypes,
                 graphDataTypes),
             CreateDemoGraphItem(
@@ -207,6 +208,7 @@ public class DatabaseSeeder(
                 "DOUGHNUT_CHART",
                 "ANALYSIS_STATUS",
                 null,
+                2,
                 graphTypes,
                 graphDataTypes),
             CreateDemoGraphItem(
@@ -215,6 +217,7 @@ public class DatabaseSeeder(
                 "BAR_CHART",
                 "PROCESSING_TIME",
                 null,
+                3,
                 graphTypes,
                 graphDataTypes),
             CreateDemoGraphItem(
@@ -223,6 +226,7 @@ public class DatabaseSeeder(
                 "BAR_CHART",
                 "LABORATORY_WORKLOAD",
                 null,
+                4,
                 graphTypes,
                 graphDataTypes)
         ]);
@@ -237,6 +241,7 @@ public class DatabaseSeeder(
         string graphTypeName,
         string graphDataTypeName,
         string? content,
+        int ordering,
         IReadOnlyDictionary<string, GraphTypeEntity> graphTypes,
         IReadOnlyDictionary<string, GraphDataTypeEntity> graphDataTypes)
     {
@@ -246,7 +251,8 @@ public class DatabaseSeeder(
             Description = description,
             Content = content,
             GraphTypeId = graphTypes[graphTypeName].Id,
-            GraphDataTypeId = graphDataTypes[graphDataTypeName].Id
+            GraphDataTypeId = graphDataTypes[graphDataTypeName].Id,
+            Ordering = ordering
         };
     }
 

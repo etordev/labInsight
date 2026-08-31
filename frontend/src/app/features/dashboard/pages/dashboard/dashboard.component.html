@@ -6,10 +6,41 @@
     </div>
 
     @if (!isLoading() && !hasError() && graphItems().length > 0) {
-      <button mat-flat-button class="create-button" type="button" (click)="onCreateGraph()">
-        <mat-icon>add</mat-icon>
-        Create a new graph
-      </button>
+      <div class="toolbar-actions">
+        @if (isRearranging()) {
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="isSavingOrder()"
+            (click)="onAbortRearrange()"
+          >
+            Abort
+          </button>
+          <button
+            mat-flat-button
+            type="button"
+            [disabled]="isSavingOrder()"
+            (click)="onSaveOrder()"
+          >
+            {{ isSavingOrder() ? 'Saving…' : 'Save' }}
+          </button>
+        } @else {
+          <button
+            mat-stroked-button
+            class="rearrange-button"
+            type="button"
+            [disabled]="graphItems().length < 2"
+            (click)="onStartRearrange()"
+          >
+            <mat-icon>drag_indicator</mat-icon>
+            Move graphs
+          </button>
+          <button mat-flat-button class="create-button" type="button" (click)="onCreateGraph()">
+            <mat-icon>add</mat-icon>
+            Create a new graph
+          </button>
+        }
+      </div>
     }
   </header>
 
@@ -41,13 +72,29 @@
       </button>
     </div>
   } @else {
-    <div class="dashboard-grid">
+    <div class="dashboard-grid" [class.is-rearranging]="isRearranging()">
       @for (item of graphItems(); track item.id) {
-        <app-graph-item
-          [graphItem]="item"
-          (edit)="onEditGraph(item)"
-          (remove)="onDeleteGraph(item)"
-        />
+        <div class="grid-item">
+          <div
+            class="grid-item-drag"
+            cdkDrag
+            [cdkDragData]="item"
+            [cdkDragDisabled]="!isRearranging()"
+            (cdkDragEnded)="onDragEnded($event)"
+          >
+            @if (isRearranging()) {
+              <div class="drag-handle" aria-hidden="true">
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+            }
+            <app-graph-item
+              [graphItem]="item"
+              [rearrangeMode]="isRearranging()"
+              (edit)="onEditGraph(item)"
+              (remove)="onDeleteGraph(item)"
+            />
+          </div>
+        </div>
       }
     </div>
   }

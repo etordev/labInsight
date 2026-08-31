@@ -8,6 +8,7 @@ public class GraphItemDto
     public string? Content { get; set; }
     public int GraphTypeId { get; set; }
     public int GraphDataTypeId { get; set; }
+    public int Ordering { get; set; }
     public required GraphTypeDto GraphType { get; set; }
     public required GraphDataTypeDto GraphDataType { get; set; }
 }

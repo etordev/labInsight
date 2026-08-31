@@ -7,6 +7,7 @@ public class GraphItemEntity : EntityBase
     public string? Content { get; set; }
     public int GraphTypeId { get; set; }
     public int GraphDataTypeId { get; set; }
+    public int Ordering { get; set; }
 
     public GraphTypeEntity GraphType { get; set; } = null!;
     public GraphDataTypeEntity GraphDataType { get; set; } = null!;

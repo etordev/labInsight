@@ -1,3 +1,4 @@
+import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -13,6 +14,7 @@ import { GraphWizardDialogComponent, GraphWizardCloseResult } from '../../wizard
 @Component({
   selector: 'app-dashboard',
   imports: [
+    CdkDrag,
     GraphItemComponent,
     MatButtonModule,
     MatDialogModule,
@@ -31,20 +33,36 @@ export class DashboardComponent implements OnInit {
   readonly graphItems = signal<GraphItem[]>([]);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
+  readonly isRearranging = signal(false);
+  readonly isSavingOrder = signal(false);
+
+  private originalItems: GraphItem[] = [];
 
   ngOnInit(): void {
     this.loadGraphItems();
   }
 
   onCreateGraph(): void {
+    if (this.isRearranging()) {
+      return;
+    }
+
     this.openWizard();
   }
 
   onEditGraph(item: GraphItem): void {
+    if (this.isRearranging()) {
+      return;
+    }
+
     this.openWizard(item);
   }
 
   onDeleteGraph(item: GraphItem): void {
+    if (this.isRearranging()) {
+      return;
+    }
+
     confirmDeleteGraph(this.dialog).subscribe((confirmed) => {
       if (!confirmed) {
         return;
@@ -61,6 +79,76 @@ export class DashboardComponent implements OnInit {
           });
         }
       });
+    });
+  }
+
+  onStartRearrange(): void {
+    this.originalItems = [...this.graphItems()];
+    this.isRearranging.set(true);
+  }
+
+  onAbortRearrange(): void {
+    this.graphItems.set([...this.originalItems]);
+    this.originalItems = [];
+    this.isRearranging.set(false);
+    this.isSavingOrder.set(false);
+  }
+
+  onSaveOrder(): void {
+    const items = this.graphItems();
+    const payload = items.map((item, index) => ({
+      graphId: item.id,
+      ordering: index + 1
+    }));
+
+    this.isSavingOrder.set(true);
+    this.graphItemService.updateGraphOrdering(payload).subscribe({
+      next: () => {
+        this.graphItems.set(
+          items.map((item, index) => ({
+            ...item,
+            ordering: index + 1
+          }))
+        );
+        this.originalItems = [];
+        this.isRearranging.set(false);
+        this.isSavingOrder.set(false);
+        this.snackBar.open('Graph order saved.', 'Dismiss', { duration: 4000 });
+      },
+      error: () => {
+        this.isSavingOrder.set(false);
+        this.snackBar.open('Could not save the graph order. Please try again.', 'Dismiss', {
+          duration: 4000
+        });
+      }
+    });
+  }
+
+  onDragEnded(event: CdkDragEnd<GraphItem>): void {
+    const dragged = event.source.data;
+    const { x, y } = event.dropPoint;
+    const grid = event.source.element.nativeElement.closest('.dashboard-grid');
+    const slots = grid ? Array.from(grid.querySelectorAll<HTMLElement>(':scope > .grid-item')) : [];
+    const targetIndex = slots.findIndex((slot) => {
+      const rect = slot.getBoundingClientRect();
+      return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    });
+
+    event.source.reset();
+
+    if (!dragged) {
+      return;
+    }
+
+    this.graphItems.update((items) => {
+      const from = items.findIndex((item) => item.id === dragged.id);
+      if (from < 0 || targetIndex < 0 || from === targetIndex) {
+        return items;
+      }
+
+      const next = [...items];
+      [next[from], next[targetIndex]] = [next[targetIndex], next[from]];
+      return next;
     });
   }
 
@@ -111,6 +199,9 @@ export class DashboardComponent implements OnInit {
   private loadGraphItems(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
+    this.isRearranging.set(false);
+    this.isSavingOrder.set(false);
+    this.originalItems = [];
 
     this.graphItemService.getGraphItems().subscribe({
       next: (items) => {

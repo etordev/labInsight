@@ -119,6 +119,9 @@ namespace LabInsight.Api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<int>("Ordering")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GraphDataTypeId");
@@ -126,6 +129,8 @@ namespace LabInsight.Api.Migrations
                     b.HasIndex("GraphTypeId");
 
                     b.HasIndex("IsDeleted");
+
+                    b.HasIndex("Ordering");
 
                     b.ToTable("graph_items", (string)null);
                 });

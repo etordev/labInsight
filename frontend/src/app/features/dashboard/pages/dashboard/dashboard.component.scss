@@ -36,8 +36,17 @@
   line-height: 1.5;
 }
 
-.create-button {
+.create-button,
+.rearrange-button {
   flex-shrink: 0;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
 .panel {
@@ -104,9 +113,63 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
   gap: 1.25rem;
   width: 100%;
   min-width: 0;
+}
+
+.grid-item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 32rem;
+  height: 100%;
+}
+
+.grid-item-drag {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-item-drag > app-graph-item {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--mat-sys-on-surface-variant);
+  pointer-events: none;
+}
+
+.dashboard-grid.is-rearranging .grid-item-drag {
+  cursor: grab;
+  z-index: 0;
+  touch-action: none;
+}
+
+.dashboard-grid.is-rearranging .grid-item-drag > app-graph-item {
+  pointer-events: none;
+}
+
+.dashboard-grid.is-rearranging .grid-item-drag.cdk-drag-dragging {
+  z-index: 5;
+  cursor: grabbing;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--mat-sys-shadow) 28%, transparent);
 }
 
 @media (min-width: 960px) {
@@ -121,7 +184,9 @@
     align-items: stretch;
   }
 
-  .create-button {
+  .create-button,
+  .rearrange-button,
+  .toolbar-actions {
     align-self: flex-start;
   }
 

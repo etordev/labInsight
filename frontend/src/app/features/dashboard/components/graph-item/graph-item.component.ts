@@ -31,6 +31,7 @@ import { PieChartComponent } from '../visualizations/pie-chart.component';
     DoughnutChartComponent,
     DataGridComponent
   ],
+  host: { '[class.rearrange-mode]': 'rearrangeMode()' },
   templateUrl: './graph-item.component.html',
   styleUrl: './graph-item.component.scss'
 })
@@ -38,6 +39,7 @@ export class GraphItemComponent {
   private readonly graphItemService = inject(GraphItemService);
 
   readonly graphItem = input.required<GraphItem>();
+  readonly rearrangeMode = input(false);
   readonly edit = output<void>();
   readonly remove = output<void>();
   readonly analytics = signal<GraphItemAnalytics | null>(null);

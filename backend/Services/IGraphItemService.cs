@@ -11,6 +11,10 @@ public interface IGraphItemService
         CancellationToken cancellationToken);
 
     Task<bool> DeleteGraphItemAsync(int id, CancellationToken cancellationToken);
+
+    Task<string?> UpdateGraphOrderingAsync(
+        IReadOnlyList<UpdateGraphOrderingItem> items,
+        CancellationToken cancellationToken);
 }
 
 public sealed record UpsertGraphItemResult(GraphItemDto? Item, string? Error, bool NotFound, bool Created);

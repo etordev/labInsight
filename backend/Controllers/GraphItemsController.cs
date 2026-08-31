@@ -64,4 +64,18 @@ public class GraphItemsController(IGraphItemService graphItemService, IAnalytics
 
         return NoContent();
     }
+
+    [HttpPost("updateGraphOrdering")]
+    public async Task<IActionResult> UpdateGraphOrdering(
+        [FromBody] IReadOnlyList<UpdateGraphOrderingItem> items,
+        CancellationToken cancellationToken)
+    {
+        var error = await graphItemService.UpdateGraphOrderingAsync(items, cancellationToken);
+        if (error is not null)
+        {
+            return BadRequest(new { message = error });
+        }
+
+        return NoContent();
+    }
 }

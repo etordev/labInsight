@@ -82,7 +82,8 @@ public class GraphItemService(
                 GraphTypeId = request.GraphTypeId,
                 GraphDataTypeId = request.GraphDataTypeId,
                 IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Ordering = await graphItemRepository.GetMaxOrderingAsync(cancellationToken) + 1
             };
 
             graphItemRepository.Add(entity);
@@ -100,6 +101,43 @@ public class GraphItemService(
         return graphItemRepository.SoftDeleteAsync(id, cancellationToken);
     }
 
+    public async Task<string?> UpdateGraphOrderingAsync(
+        IReadOnlyList<UpdateGraphOrderingItem> items,
+        CancellationToken cancellationToken)
+    {
+        if (items.Count == 0)
+        {
+            return "At least one graph is required.";
+        }
+
+        var graphIds = items.Select(item => item.GraphId).ToList();
+        if (graphIds.Distinct().Count() != graphIds.Count)
+        {
+            return "Each graph can appear only once.";
+        }
+
+        var orderings = items.Select(item => item.Ordering).ToList();
+        if (orderings.Any(ordering => ordering < 1) || orderings.Distinct().Count() != orderings.Count)
+        {
+            return "Ordering values must be unique positive numbers.";
+        }
+
+        var existing = await graphItemRepository.GetTrackedByIdsAsync(graphIds, isDeleted: false, cancellationToken);
+        if (existing.Count != graphIds.Count)
+        {
+            return "One or more graphs were not found.";
+        }
+
+        var orderingById = items.ToDictionary(item => item.GraphId, item => item.Ordering);
+        foreach (var entity in existing)
+        {
+            entity.Ordering = orderingById[entity.Id];
+        }
+
+        await graphItemRepository.SaveChangesAsync(cancellationToken);
+        return null;
+    }
+
     private static GraphItemDto MapDto(GraphItemEntity item) => new()
     {
         Id = item.Id,
@@ -108,6 +146,7 @@ public class GraphItemService(
         Content = item.Content,
         GraphTypeId = item.GraphTypeId,
         GraphDataTypeId = item.GraphDataTypeId,
+        Ordering = item.Ordering,
         GraphType = new GraphTypeDto
         {
             Id = item.GraphType.Id,

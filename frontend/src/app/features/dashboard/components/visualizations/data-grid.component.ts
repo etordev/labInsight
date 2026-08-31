@@ -6,7 +6,7 @@ import { AnalyticsPoint, DelayedAnalysisRow } from '../../models/graph-item-anal
 @Component({
   selector: 'app-data-grid',
   imports: [DatePipe, MatTableModule],
-  host: { style: 'display:block;width:100%;min-width:0;max-width:100%' },
+  host: { style: 'display:block;width:100%;min-width:0;max-width:100%;height:100%' },
   templateUrl: './data-grid.component.html',
   styleUrl: './data-grid.component.scss'
 })

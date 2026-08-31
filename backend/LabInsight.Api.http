@@ -63,3 +63,13 @@ Content-Type: application/json
 ###
 
 DELETE {{LabInsight.Api_HostAddress}}/api/deleteGraphItem/1
+
+###
+
+POST {{LabInsight.Api_HostAddress}}/api/updateGraphOrdering
+Content-Type: application/json
+
+[
+  { "graphId": 1, "ordering": 1 },
+  { "graphId": 2, "ordering": 2 }
+]
