@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -22,6 +23,7 @@ import { WizardSelectionSummaryComponent } from '../wizard-selection-summary.com
   imports: [
     ReactiveFormsModule,
     MatDatepickerModule,
+    MatTimepickerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,

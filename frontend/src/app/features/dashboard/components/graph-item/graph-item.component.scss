@@ -40,8 +40,40 @@
   padding-right: 6rem;
 }
 
-:host.rearrange-mode {
-  contain: layout;
+:host.has-date-range {
+  height: 36.5rem;
+  min-height: 36.5rem;
+  max-height: 36.5rem;
+}
+
+.date-range-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.35rem 0.65rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0 1rem 0.15rem;
+  box-sizing: border-box;
+}
+
+.date-range-filters mat-form-field {
+  width: 100%;
+}
+
+.date-range-error,
+.date-range-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.date-range-error {
+  color: var(--mat-sys-error);
+}
+
+.date-range-hint {
+  color: var(--mat-sys-on-surface-variant);
 }
 
 :host.rearrange-mode .graph-item-card mat-card-content {

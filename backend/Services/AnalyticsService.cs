@@ -120,32 +120,50 @@ public class AnalyticsService(
             return query;
         }
 
-        var hasFrom = TryParseDate(filters?.DateFrom, endOfDay: false, out var dateFrom);
-        var hasTo = TryParseDate(filters?.DateTo, endOfDay: true, out var dateTo);
+        var hasFrom = TryParseDate(filters?.DateFrom, out var dateFrom);
+        var hasTo = TryParseDate(filters?.DateTo, out var dateTo);
+        var hasTimeFrom = TryParseTime(filters?.TimeFrom, out var timeFrom);
+        var hasTimeTo = TryParseTime(filters?.TimeTo, out var timeTo);
 
         if (!hasFrom && !hasTo)
         {
             var todayUtc = DateTime.UtcNow.Date;
             dateFrom = DateTime.SpecifyKind(todayUtc.AddMonths(-12), DateTimeKind.Utc);
-            dateTo = DateTime.SpecifyKind(todayUtc.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+            dateTo = DateTime.SpecifyKind(todayUtc, DateTimeKind.Utc);
             hasFrom = true;
             hasTo = true;
         }
 
         if (hasFrom)
         {
+            dateFrom = DateTime.SpecifyKind(dateFrom.Date, DateTimeKind.Utc);
             query = query.Where(analysis => analysis.ReceivedAt >= dateFrom);
         }
 
         if (hasTo)
         {
-            query = query.Where(analysis => analysis.ReceivedAt <= dateTo);
+            var dateToEnd = DateTime.SpecifyKind(dateTo.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+            query = query.Where(analysis => analysis.ReceivedAt <= dateToEnd);
+        }
+
+        if (hasTimeFrom)
+        {
+            var fromMinutes = (int)timeFrom.TotalMinutes;
+            query = query.Where(analysis =>
+                analysis.ReceivedAt.Hour * 60 + analysis.ReceivedAt.Minute >= fromMinutes);
+        }
+
+        if (hasTimeTo)
+        {
+            var toMinutes = (int)timeTo.TotalMinutes;
+            query = query.Where(analysis =>
+                analysis.ReceivedAt.Hour * 60 + analysis.ReceivedAt.Minute <= toMinutes);
         }
 
         return query;
     }
 
-    private static bool TryParseDate(string? value, bool endOfDay, out DateTime parsed)
+    private static bool TryParseDate(string? value, out DateTime parsed)
     {
         parsed = default;
         if (string.IsNullOrWhiteSpace(value))
@@ -158,10 +176,25 @@ public class AnalyticsService(
             return false;
         }
 
-        parsed = endOfDay
-            ? DateTime.SpecifyKind(date.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc)
-            : DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
+        parsed = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
         return true;
+    }
+
+    private static bool TryParseTime(string? value, out TimeSpan parsed)
+    {
+        parsed = default;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        return TimeSpan.TryParseExact(
+                   value.Trim(),
+                   ["hh\\:mm", "h\\:mm", "hh\\:mm\\:ss"],
+                   CultureInfo.InvariantCulture,
+                   out parsed)
+               && parsed >= TimeSpan.Zero
+               && parsed < TimeSpan.FromDays(1);
     }
 
     private static async Task<GraphItemAnalyticsDto> GetAnalysisVolumeAsync(

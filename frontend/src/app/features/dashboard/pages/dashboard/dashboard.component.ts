@@ -67,6 +67,12 @@ export class DashboardComponent implements OnInit {
     this.openWizard(item);
   }
 
+  onGraphItemUpdated(updated: GraphItem): void {
+    this.graphItems.update((items) =>
+      items.map((item) => (item.id === updated.id ? updated : item))
+    );
+  }
+
   onDeleteGraph(item: GraphItem): void {
     if (this.isRearranging()) {
       return;

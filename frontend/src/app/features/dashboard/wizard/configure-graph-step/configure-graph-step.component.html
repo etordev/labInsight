@@ -52,8 +52,32 @@
         </mat-form-field>
       }
 
-      @if (form.hasError('dateRange') && (form.controls.dateFrom.touched || form.controls.dateTo.touched)) {
-        <p class="field-error full">Date from must not be later than date to.</p>
+      @if (isVisible(fields.timeFrom)) {
+        <mat-form-field appearance="outline">
+          <mat-label>Time from</mat-label>
+          <input matInput [matTimepicker]="fromTimePicker" formControlName="timeFrom" />
+          <mat-timepicker-toggle matIconSuffix [for]="fromTimePicker" />
+          <mat-timepicker #fromTimePicker interval="15m" />
+        </mat-form-field>
+      }
+
+      @if (isVisible(fields.timeTo)) {
+        <mat-form-field appearance="outline">
+          <mat-label>Time to</mat-label>
+          <input matInput [matTimepicker]="toTimePicker" formControlName="timeTo" />
+          <mat-timepicker-toggle matIconSuffix [for]="toTimePicker" />
+          <mat-timepicker #toTimePicker interval="15m" />
+        </mat-form-field>
+      }
+
+      @if (
+        form.hasError('dateRange') &&
+        (form.controls.dateFrom.touched ||
+          form.controls.dateTo.touched ||
+          form.controls.timeFrom.touched ||
+          form.controls.timeTo.touched)
+      ) {
+        <p class="field-error full">Start must not be later than end.</p>
       }
 
       @if (isVisible(fields.laboratoryId)) {

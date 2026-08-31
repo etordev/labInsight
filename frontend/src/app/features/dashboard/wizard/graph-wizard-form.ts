@@ -11,6 +11,8 @@ export interface GraphWizardFormControls {
   description: FormControl<string>;
   dateFrom: FormControl<Date | null>;
   dateTo: FormControl<Date | null>;
+  timeFrom: FormControl<Date | null>;
+  timeTo: FormControl<Date | null>;
   laboratoryId: FormControl<number | null>;
   analysisCategoryId: FormControl<number | null>;
   priority: FormControl<AnalysisPriorityValue | null>;
@@ -25,6 +27,8 @@ export interface GraphWizardFormValue {
   description: string;
   dateFrom: Date | null;
   dateTo: Date | null;
+  timeFrom: Date | null;
+  timeTo: Date | null;
   laboratoryId: number | null;
   analysisCategoryId: number | null;
   priority: AnalysisPriorityValue | null;
@@ -40,14 +44,22 @@ export function requiredTrimmed(control: AbstractControl): ValidationErrors | nu
 export function dateRangeValidator(group: AbstractControl): ValidationErrors | null {
   const dateFrom = group.get('dateFrom')?.value as Date | null;
   const dateTo = group.get('dateTo')?.value as Date | null;
+  const timeFrom = group.get('timeFrom')?.value as Date | null;
+  const timeTo = group.get('timeTo')?.value as Date | null;
 
-  if (!dateFrom || !dateTo) {
-    return null;
+  if (dateFrom && dateTo) {
+    const fromTime = startOfDay(dateFrom).getTime();
+    const toTime = startOfDay(dateTo).getTime();
+    if (fromTime > toTime) {
+      return { dateRange: true };
+    }
   }
 
-  const fromTime = startOfDay(dateFrom).getTime();
-  const toTime = startOfDay(dateTo).getTime();
-  return fromTime > toTime ? { dateRange: true } : null;
+  if (timeFrom && timeTo && minutesFromMidnight(timeFrom) > minutesFromMidnight(timeTo)) {
+    return { dateRange: true };
+  }
+
+  return null;
 }
 
 export function createGraphWizardForm(): GraphWizardForm {
@@ -63,6 +75,8 @@ export function createGraphWizardForm(): GraphWizardForm {
       }),
       dateFrom: new FormControl<Date | null>(null),
       dateTo: new FormControl<Date | null>(null),
+      timeFrom: new FormControl<Date | null>(null),
+      timeTo: new FormControl<Date | null>(null),
       laboratoryId: new FormControl<number | null>(null),
       analysisCategoryId: new FormControl<number | null>(null),
       priority: new FormControl<AnalysisPriorityValue | null>(null),
@@ -75,4 +89,8 @@ export function createGraphWizardForm(): GraphWizardForm {
 
 function startOfDay(value: Date): Date {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+}
+
+function minutesFromMidnight(value: Date): number {
+  return value.getHours() * 60 + value.getMinutes();
 }

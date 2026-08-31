@@ -60,7 +60,7 @@ export class ReviewGraphStepComponent {
     rows.push({ label: 'Graph Type', value: GRAPH_TYPE_UI_BY_NAME[graphType].label });
 
     const dateRange = supportsDateRange(dataType)
-      ? this.formatDateRange(value.dateFrom, value.dateTo)
+      ? this.formatDateRange(value.dateFrom, value.dateTo, value.timeFrom, value.timeTo)
       : null;
     if (dateRange) {
       rows.push({ label: 'Date Range', value: dateRange });
@@ -102,20 +102,44 @@ export class ReviewGraphStepComponent {
     return rows;
   }
 
-  private formatDateRange(from: Date | null, to: Date | null): string | null {
-    if (!from && !to) {
+  private formatDateRange(
+    from: Date | null,
+    to: Date | null,
+    timeFrom: Date | null,
+    timeTo: Date | null
+  ): string | null {
+    if (!from && !to && !timeFrom && !timeTo) {
       return null;
     }
 
-    if (from && to) {
-      return `${this.formatDate(from)} – ${this.formatDate(to)}`;
+    const start = this.formatDateTime(from, timeFrom);
+    const end = this.formatDateTime(to, timeTo);
+
+    if (start && end) {
+      return `${start} – ${end}`;
     }
 
-    if (from) {
-      return `From ${this.formatDate(from)}`;
+    if (start) {
+      return `From ${start}`;
     }
 
-    return `Until ${this.formatDate(to!)}`;
+    return `Until ${end}`;
+  }
+
+  private formatDateTime(date: Date | null, time: Date | null): string | null {
+    if (!date && !time) {
+      return null;
+    }
+
+    if (date && time) {
+      return `${this.formatDate(date)}, ${this.formatTime(time)}`;
+    }
+
+    if (date) {
+      return this.formatDate(date);
+    }
+
+    return this.formatTime(time!);
   }
 
   private formatDate(value: Date): string {
@@ -123,6 +147,14 @@ export class ReviewGraphStepComponent {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
+    }).format(value);
+  }
+
+  private formatTime(value: Date): string {
+    return new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23'
     }).format(value);
   }
 }

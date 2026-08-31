@@ -100,6 +100,7 @@
               [rearrangeMode]="isRearranging()"
               (edit)="onEditGraph(item)"
               (remove)="onDeleteGraph(item)"
+              (itemUpdated)="onGraphItemUpdated($event)"
             />
           </div>
         </div>

@@ -6,6 +6,12 @@ import { GraphDataTypeTechnicalName } from './graph-data-type-technical-name';
 import { GraphItemContent, GraphItemFilters } from './graph-item-content.model';
 import { GROUP_BY_VALUES, GroupByValue } from './group-by';
 
+export function toTimeOnlyString(value: Date): string {
+  const hours = String(value.getHours()).padStart(2, '0');
+  const minutes = String(value.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
 export function toDateOnlyString(value: Date): string {
   const year = value.getFullYear();
   const month = String(value.getMonth() + 1).padStart(2, '0');
@@ -28,6 +34,14 @@ export function buildGraphItemContent(
 
   if (visible(GRAPH_CONFIG_FIELDS.dateTo) && value.dateTo) {
     filters.dateTo = toDateOnlyString(value.dateTo);
+  }
+
+  if (visible(GRAPH_CONFIG_FIELDS.timeFrom) && value.timeFrom) {
+    filters.timeFrom = toTimeOnlyString(value.timeFrom);
+  }
+
+  if (visible(GRAPH_CONFIG_FIELDS.timeTo) && value.timeTo) {
+    filters.timeTo = toTimeOnlyString(value.timeTo);
   }
 
   if (visible(GRAPH_CONFIG_FIELDS.laboratoryId) && value.laboratoryId != null) {
@@ -67,6 +81,36 @@ export function serializeGraphItemContent(
   return content ? JSON.stringify(content) : null;
 }
 
+export function replaceContentDateFilters(
+  content: string | null | undefined,
+  dateFrom: Date | null,
+  dateTo: Date | null
+): string | null {
+  const parsed = parseGraphItemContent(content);
+  const filters: GraphItemFilters = { ...(parsed.filters ?? {}) };
+
+  if (dateFrom) {
+    filters.dateFrom = toDateOnlyString(dateFrom);
+  } else {
+    delete filters.dateFrom;
+  }
+
+  if (dateTo) {
+    filters.dateTo = toDateOnlyString(dateTo);
+  } else {
+    delete filters.dateTo;
+  }
+
+  const next: GraphItemContent = { ...parsed };
+  if (Object.keys(filters).length > 0) {
+    next.filters = filters;
+  } else {
+    delete next.filters;
+  }
+
+  return Object.keys(next).length > 0 ? JSON.stringify(next) : null;
+}
+
 export function parseGraphItemContent(content: string | null | undefined): GraphItemContent {
   if (!content) {
     return {};
@@ -93,11 +137,40 @@ export function parseDateOnlyString(value: string | undefined): Date | null {
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
+export function parseTimeOnlyString(value: string | undefined): Date | null {
+  if (!value) {
+    return null;
+  }
+
+  const match = /^(\d{1,2}):(\d{2})/.exec(value);
+  if (!match) {
+    return null;
+  }
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) {
+    return null;
+  }
+
+  const parsed = new Date();
+  parsed.setHours(hours, minutes, 0, 0);
+  return parsed;
+}
+
 export function parseWizardFormValueFromContent(
   content: string | null | undefined
 ): Pick<
   GraphWizardFormValue,
-  'dateFrom' | 'dateTo' | 'laboratoryId' | 'analysisCategoryId' | 'priority' | 'status' | 'groupBy'
+  | 'dateFrom'
+  | 'dateTo'
+  | 'timeFrom'
+  | 'timeTo'
+  | 'laboratoryId'
+  | 'analysisCategoryId'
+  | 'priority'
+  | 'status'
+  | 'groupBy'
 > {
   const parsed = parseGraphItemContent(content);
   const filters = parsed.filters ?? {};
@@ -105,6 +178,8 @@ export function parseWizardFormValueFromContent(
   return {
     dateFrom: parseDateOnlyString(filters.dateFrom),
     dateTo: parseDateOnlyString(filters.dateTo),
+    timeFrom: parseTimeOnlyString(filters.timeFrom),
+    timeTo: parseTimeOnlyString(filters.timeTo),
     laboratoryId: typeof filters.laboratoryId === 'number' ? filters.laboratoryId : null,
     analysisCategoryId:
       typeof filters.analysisCategoryId === 'number' ? filters.analysisCategoryId : null,
