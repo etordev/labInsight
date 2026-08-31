@@ -1,5 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { getAllowedGraphTypes } from '../config/graph-type-compatibility';
+import { supportsDateRange } from '../config/graph-config-fields';
 import { parseWizardFormValueFromContent } from '../models/build-graph-item-content';
 import {
   GraphDataTypeTechnicalName,
@@ -36,10 +37,12 @@ export class GraphWizardState {
       description: item.description ?? '',
       ...contentFields
     });
+    this.clearDatesIfUnsupported(dataType);
   }
 
   setGraphDataType(graphDataType: GraphDataTypeTechnicalName): void {
     this.selectedGraphDataType.set(graphDataType);
+    this.clearDatesIfUnsupported(graphDataType);
 
     const selectedGraphType = this.selectedGraphType();
     if (selectedGraphType && !getAllowedGraphTypes(graphDataType).includes(selectedGraphType)) {
@@ -59,5 +62,13 @@ export class GraphWizardState {
     }
 
     this.selectedGraphType.set(graphType);
+  }
+
+  private clearDatesIfUnsupported(graphDataType: GraphDataTypeTechnicalName | null): void {
+    if (graphDataType && supportsDateRange(graphDataType)) {
+      return;
+    }
+
+    this.form.patchValue({ dateFrom: null, dateTo: null });
   }
 }

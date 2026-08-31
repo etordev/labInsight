@@ -35,8 +35,6 @@ export const GRAPH_DATA_TYPE_CONFIG_FIELDS: Record<
   [GRAPH_DATA_TYPE_TECHNICAL_NAMES.ANALYSIS_STATUS]: [
     GRAPH_CONFIG_FIELDS.name,
     GRAPH_CONFIG_FIELDS.description,
-    GRAPH_CONFIG_FIELDS.dateFrom,
-    GRAPH_CONFIG_FIELDS.dateTo,
     GRAPH_CONFIG_FIELDS.laboratoryId,
     GRAPH_CONFIG_FIELDS.analysisCategoryId,
     GRAPH_CONFIG_FIELDS.priority
@@ -54,8 +52,6 @@ export const GRAPH_DATA_TYPE_CONFIG_FIELDS: Record<
   [GRAPH_DATA_TYPE_TECHNICAL_NAMES.ANALYSIS_CATEGORY]: [
     GRAPH_CONFIG_FIELDS.name,
     GRAPH_CONFIG_FIELDS.description,
-    GRAPH_CONFIG_FIELDS.dateFrom,
-    GRAPH_CONFIG_FIELDS.dateTo,
     GRAPH_CONFIG_FIELDS.laboratoryId,
     GRAPH_CONFIG_FIELDS.priority
   ],
@@ -70,8 +66,6 @@ export const GRAPH_DATA_TYPE_CONFIG_FIELDS: Record<
   [GRAPH_DATA_TYPE_TECHNICAL_NAMES.PRIORITY_DISTRIBUTION]: [
     GRAPH_CONFIG_FIELDS.name,
     GRAPH_CONFIG_FIELDS.description,
-    GRAPH_CONFIG_FIELDS.dateFrom,
-    GRAPH_CONFIG_FIELDS.dateTo,
     GRAPH_CONFIG_FIELDS.laboratoryId,
     GRAPH_CONFIG_FIELDS.analysisCategoryId
   ],
@@ -86,8 +80,6 @@ export const GRAPH_DATA_TYPE_CONFIG_FIELDS: Record<
   [GRAPH_DATA_TYPE_TECHNICAL_NAMES.DELAYED_ANALYSES]: [
     GRAPH_CONFIG_FIELDS.name,
     GRAPH_CONFIG_FIELDS.description,
-    GRAPH_CONFIG_FIELDS.dateFrom,
-    GRAPH_CONFIG_FIELDS.dateTo,
     GRAPH_CONFIG_FIELDS.laboratoryId,
     GRAPH_CONFIG_FIELDS.analysisCategoryId,
     GRAPH_CONFIG_FIELDS.priority
@@ -105,4 +97,11 @@ export function isConfigFieldVisible(
   field: GraphConfigField
 ): boolean {
   return getVisibleConfigFields(graphDataType).includes(field);
+}
+
+export function supportsDateRange(graphDataType: GraphDataTypeTechnicalName): boolean {
+  return (
+    isConfigFieldVisible(graphDataType, GRAPH_CONFIG_FIELDS.dateFrom) &&
+    isConfigFieldVisible(graphDataType, GRAPH_CONFIG_FIELDS.dateTo)
+  );
 }

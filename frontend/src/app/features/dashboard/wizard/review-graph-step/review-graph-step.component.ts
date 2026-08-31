@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
-import { GRAPH_CONFIG_FIELDS, isConfigFieldVisible } from '../../config/graph-config-fields';
+import { GRAPH_CONFIG_FIELDS, isConfigFieldVisible, supportsDateRange } from '../../config/graph-config-fields';
 import { GRAPH_DATA_TYPE_UI_BY_NAME } from '../../config/graph-data-type-ui.config';
 import { GRAPH_TYPE_UI_BY_NAME } from '../../config/graph-type-ui.config';
 import { ANALYSIS_PRIORITY_OPTIONS } from '../../models/analysis-priority';
@@ -59,10 +59,9 @@ export class ReviewGraphStepComponent {
     rows.push({ label: 'Data Type', value: GRAPH_DATA_TYPE_UI_BY_NAME[dataType].label });
     rows.push({ label: 'Graph Type', value: GRAPH_TYPE_UI_BY_NAME[graphType].label });
 
-    const dateRange = this.formatDateRange(
-      visible(GRAPH_CONFIG_FIELDS.dateFrom) ? value.dateFrom : null,
-      visible(GRAPH_CONFIG_FIELDS.dateTo) ? value.dateTo : null
-    );
+    const dateRange = supportsDateRange(dataType)
+      ? this.formatDateRange(value.dateFrom, value.dateTo)
+      : null;
     if (dateRange) {
       rows.push({ label: 'Date Range', value: dateRange });
     }
