@@ -48,8 +48,7 @@ import { PieChartComponent } from '../visualizations/pie-chart.component';
     DataGridComponent
   ],
   host: {
-    '[class.rearrange-mode]': 'rearrangeMode()',
-    '[class.has-date-range]': 'showsDateRange() && !rearrangeMode()'
+    '[class.rearrange-mode]': 'rearrangeMode()'
   },
   templateUrl: './graph-item.component.html',
   styleUrl: './graph-item.component.scss'

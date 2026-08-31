@@ -40,15 +40,10 @@
   padding-right: 6rem;
 }
 
-:host.has-date-range {
-  height: 36.5rem;
-  min-height: 36.5rem;
-  max-height: 36.5rem;
-}
-
 .date-range-filters {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  flex-shrink: 0;
   gap: 0.35rem 0.65rem;
   width: 100%;
   min-width: 0;
@@ -92,9 +87,7 @@
   flex: 1;
   width: 100%;
   min-width: 0;
-  min-height: 20rem;
-  height: 20rem;
-  max-height: 20rem;
+  min-height: 0;
   overflow-x: auto;
   overflow-y: auto;
 }
