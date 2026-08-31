@@ -5,8 +5,6 @@ import { GroupByValue } from './group-by';
 export interface GraphItemFilters {
   dateFrom?: string;
   dateTo?: string;
-  timeFrom?: string;
-  timeTo?: string;
   laboratoryId?: number;
   analysisCategoryId?: number;
   priority?: AnalysisPriorityValue;

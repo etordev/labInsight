@@ -69,6 +69,6 @@ export class GraphWizardState {
       return;
     }
 
-    this.form.patchValue({ dateFrom: null, dateTo: null, timeFrom: null, timeTo: null });
+    this.form.patchValue({ dateFrom: null, dateTo: null });
   }
 }

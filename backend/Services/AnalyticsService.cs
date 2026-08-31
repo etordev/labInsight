@@ -122,8 +122,6 @@ public class AnalyticsService(
 
         var hasFrom = TryParseDate(filters?.DateFrom, out var dateFrom);
         var hasTo = TryParseDate(filters?.DateTo, out var dateTo);
-        var hasTimeFrom = TryParseTime(filters?.TimeFrom, out var timeFrom);
-        var hasTimeTo = TryParseTime(filters?.TimeTo, out var timeTo);
 
         if (!hasFrom && !hasTo)
         {
@@ -146,20 +144,6 @@ public class AnalyticsService(
             query = query.Where(analysis => analysis.ReceivedAt <= dateToEnd);
         }
 
-        if (hasTimeFrom)
-        {
-            var fromMinutes = (int)timeFrom.TotalMinutes;
-            query = query.Where(analysis =>
-                analysis.ReceivedAt.Hour * 60 + analysis.ReceivedAt.Minute >= fromMinutes);
-        }
-
-        if (hasTimeTo)
-        {
-            var toMinutes = (int)timeTo.TotalMinutes;
-            query = query.Where(analysis =>
-                analysis.ReceivedAt.Hour * 60 + analysis.ReceivedAt.Minute <= toMinutes);
-        }
-
         return query;
     }
 
@@ -178,23 +162,6 @@ public class AnalyticsService(
 
         parsed = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
         return true;
-    }
-
-    private static bool TryParseTime(string? value, out TimeSpan parsed)
-    {
-        parsed = default;
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return false;
-        }
-
-        return TimeSpan.TryParseExact(
-                   value.Trim(),
-                   ["hh\\:mm", "h\\:mm", "hh\\:mm\\:ss"],
-                   CultureInfo.InvariantCulture,
-                   out parsed)
-               && parsed >= TimeSpan.Zero
-               && parsed < TimeSpan.FromDays(1);
     }
 
     private static async Task<GraphItemAnalyticsDto> GetAnalysisVolumeAsync(
