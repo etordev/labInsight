@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { GraphItemComponent } from '../../components/graph-item/graph-item.component';
 import { confirmDeleteGraph } from '../../components/confirm-dialog/confirm-dialog.component';
+import { openHowItWorksDialog } from '../../components/how-it-works-dialog/how-it-works-dialog.component';
 import { GraphItem } from '../../models/graph-item.model';
 import { GraphItemService } from '../../services/graph-item.service';
 import { GraphWizardDialogComponent, GraphWizardCloseResult } from '../../wizard/graph-wizard-dialog.component';
@@ -49,6 +50,10 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadGraphItems();
+  }
+
+  onHowItWorks(): void {
+    openHowItWorksDialog(this.dialog);
   }
 
   onCreateGraph(): void {

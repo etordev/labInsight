@@ -1,0 +1,92 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>How LabInsight works</span>
+  <button
+    mat-icon-button
+    class="close-button"
+    type="button"
+    aria-label="Close"
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <p class="intro">
+    LabInsight is a configurable laboratory operations dashboard built with synthetic data.
+  </p>
+
+  <section class="overview">
+    <h3>What does this dashboard show?</h3>
+    <p>
+      LabInsight provides an operational overview of a fictional diagnostic laboratory network using
+      synthetically generated laboratory analysis data.
+    </p>
+    <p class="overview-lead">The dashboard can visualize:</p>
+    <ul class="metrics">
+      <li>
+        <strong>Analysis volume</strong> — how the number of received analyses develops over time
+      </li>
+      <li>
+        <strong>Analysis status</strong> — distribution of completed, processing, delayed, pending
+        and cancelled analyses
+      </li>
+      <li>
+        <strong>Processing time</strong> — average time required to process laboratory analyses
+      </li>
+      <li>
+        <strong>Laboratory workload</strong> — analysis volume across different laboratory locations
+      </li>
+      <li>
+        <strong>Priority distribution</strong> — distribution between normal, high and urgent
+        analyses
+      </li>
+      <li>
+        <strong>Completion rate</strong> — percentage of received analyses successfully completed
+      </li>
+      <li>
+        <strong>Analysis categories</strong> — distribution across Hematology, Clinical Chemistry,
+        Microbiology and Molecular Diagnostics
+      </li>
+      <li>
+        <strong>Delayed analyses</strong> — analyses exceeding their expected processing time
+      </li>
+    </ul>
+  </section>
+
+  <ol class="steps">
+    <li>
+      <strong>Choose data</strong>
+      <span>Select the laboratory metric you want to analyze.</span>
+    </li>
+    <li>
+      <strong>Pick a visualization</strong>
+      <span>Choose one of the compatible graph types.</span>
+    </li>
+    <li>
+      <strong>Configure</strong>
+      <span>Set the available filters and options for the selected metric.</span>
+    </li>
+    <li>
+      <strong>Add to dashboard</strong>
+      <span>Create the widget and arrange it on your dashboard.</span>
+    </li>
+  </ol>
+
+  <section class="customize">
+    <h3>Customize your dashboard</h3>
+    <p>
+      You can edit, delete and reorder widgets at any time. Use “Move graphs” to rearrange the
+      dashboard.
+    </p>
+  </section>
+
+  <p class="disclaimer">
+    All displayed laboratory data is synthetically generated. No real patient or medical data is
+    used.
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button type="button" (click)="close()">Got it</button>
+</mat-dialog-actions>

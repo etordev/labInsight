@@ -6,6 +6,16 @@ LabInsight is a full-stack web application for exploring and visualizing laborat
 
 All data used by LabInsight is synthetically generated. The application does not contain or represent real patient or medical data.
 
+## Live Demo
+
+**[Open LabInsight Live Demo](https://lab-insight-etorella.vercel.app/dashboard)**
+
+The live application is deployed with:
+
+- Angular frontend on Vercel
+- ASP.NET Core Web API on Render
+- PostgreSQL database on Neon
+
 ![LabInsight Dashboard](docs/images/dashboard.png)
 
 ## Overview
@@ -155,7 +165,3 @@ npm start
 App: [http://localhost:4200](http://localhost:4200)
 
 The Angular client calls `http://localhost:5080` (`frontend/src/environments/environment.ts`).
-
-## Live Demo
-
-Coming soon.
