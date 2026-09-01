@@ -16,7 +16,7 @@ The live application is deployed with:
 - ASP.NET Core Web API on Render
 - PostgreSQL database on Neon
 
-The first visit after idle time may take about a minute while the API starts. After that, the dashboard loads normally.
+**N.B.** The first visit after idle time may take about a minute while the API starts. After that, the dashboard loads normally.
 
 ![LabInsight Dashboard](docs/images/dashboard.png)
 
