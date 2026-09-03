@@ -32,3 +32,8 @@
   gap: 0.75rem;
   min-height: 3rem;
 }
+
+.required-mark {
+  color: var(--mat-sys-error);
+  font-weight: 700;
+}

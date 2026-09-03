@@ -59,6 +59,9 @@
       >
         Cancel
       </button>
+      @if (nextDisabled()) {
+        <p class="required-hint">Select a metric and a visualization to continue.</p>
+      }
       <button
         mat-flat-button
         type="button"
@@ -80,6 +83,9 @@
           }
         </button>
       } @else {
+        @if (nextDisabled()) {
+          <p class="required-hint">Enter a name to continue.</p>
+        }
         <button
           mat-flat-button
           type="button"

@@ -1,7 +1,9 @@
 <section class="wizard-step">
   <header class="wizard-step-heading">
     <h3 id="configure-widget-title">Configure widget</h3>
-    <p id="configure-widget-subtitle">Configure the widget details and optional filters.</p>
+    <p id="configure-widget-subtitle">
+      Name is required. Filters are optional.
+    </p>
     <app-wizard-selection-summary [showVisualizationType]="true" />
   </header>
 
@@ -14,7 +16,13 @@
       @if (isVisible(fields.name)) {
         <mat-form-field class="full" appearance="outline">
           <mat-label>Name</mat-label>
-          <input matInput formControlName="name" [maxLength]="nameMaxLength" autocomplete="off" />
+          <input
+            matInput
+            formControlName="name"
+            required
+            [maxLength]="nameMaxLength"
+            autocomplete="off"
+          />
           @if (form.controls.name.touched && form.controls.name.hasError('required')) {
             <mat-error>Enter a name.</mat-error>
           }

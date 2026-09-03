@@ -1,18 +1,25 @@
 <section class="wizard-step">
   <header class="wizard-step-heading">
     <h3 id="choose-content-title">Choose content</h3>
-    <p id="choose-content-subtitle">Select the metric you want to analyze and how it should be displayed.</p>
+    <p id="choose-content-subtitle">
+      Select the metric you want to analyze and how it should be displayed.
+      Fields marked with <span class="required-mark">*</span> are required.
+    </p>
   </header>
 
   <section class="content-section" aria-labelledby="select-metric-title">
     <header class="content-section-heading">
-      <h4 id="select-metric-title">Select a metric</h4>
+      <h4 id="select-metric-title">
+        Select a metric
+        <span class="required-mark" aria-hidden="true">*</span>
+      </h4>
       <p id="select-metric-subtitle">Choose the laboratory information you want to analyze.</p>
     </header>
 
     <div
       class="wizard-option-grid"
       role="radiogroup"
+      aria-required="true"
       aria-labelledby="select-metric-title"
       aria-describedby="select-metric-subtitle"
     >
@@ -39,7 +46,10 @@
   @if (selectedMetricDefinition()) {
     <section class="content-section" aria-labelledby="choose-visualization-title">
       <header class="content-section-heading">
-        <h4 id="choose-visualization-title">Choose a visualization</h4>
+        <h4 id="choose-visualization-title">
+          Choose a visualization
+          <span class="required-mark" aria-hidden="true">*</span>
+        </h4>
         <p id="choose-visualization-subtitle">Select how the chosen metric should be displayed.</p>
       </header>
 
@@ -54,6 +64,7 @@
         <div
           class="wizard-option-grid"
           role="radiogroup"
+          aria-required="true"
           aria-labelledby="choose-visualization-title"
           aria-describedby="choose-visualization-subtitle"
         >

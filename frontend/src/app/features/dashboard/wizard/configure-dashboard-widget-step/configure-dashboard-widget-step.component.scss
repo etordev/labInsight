@@ -31,6 +31,11 @@
   font-size: 0.75rem;
 }
 
+.required-mark {
+  color: var(--mat-sys-error);
+  font-weight: 700;
+}
+
 @media (max-width: 720px) {
   .form-grid {
     grid-template-columns: 1fr;
