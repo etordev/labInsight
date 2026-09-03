@@ -36,46 +36,46 @@
     </div>
   </section>
 
-  <section class="content-section" aria-labelledby="choose-visualization-title">
-    <header class="content-section-heading">
-      <h4 id="choose-visualization-title">Choose a visualization</h4>
-      <p id="choose-visualization-subtitle">Select how the chosen metric should be displayed.</p>
-    </header>
+  @if (selectedMetricDefinition()) {
+    <section class="content-section" aria-labelledby="choose-visualization-title">
+      <header class="content-section-heading">
+        <h4 id="choose-visualization-title">Choose a visualization</h4>
+        <p id="choose-visualization-subtitle">Select how the chosen metric should be displayed.</p>
+      </header>
 
-    @if (!selectedMetricDefinition()) {
-      <p class="visualization-hint">Select a metric to see the available visualization types.</p>
-    } @else if (isLoadingVisualizations()) {
-      <div class="visualization-status">
-        <mat-progress-spinner mode="indeterminate" diameter="32" />
-        <p>Loading visualization types…</p>
-      </div>
-    } @else if (visualizationOptions().length === 0) {
-      <p class="visualization-hint">No visualization types are available for this metric.</p>
-    } @else {
-      <div
-        class="wizard-option-grid"
-        role="radiogroup"
-        aria-labelledby="choose-visualization-title"
-        aria-describedby="choose-visualization-subtitle"
-      >
-        @for (option of visualizationOptions(); track option.technicalName) {
-          <button
-            type="button"
-            class="wizard-option-card"
-            role="radio"
-            [class.selected]="selectedVisualizationType() === option.technicalName"
-            [attr.aria-checked]="selectedVisualizationType() === option.technicalName"
-            (click)="selectVisualization(option.technicalName)"
-            (keydown)="onVisualizationKeydown($event, option.technicalName)"
-          >
-            <mat-icon class="wizard-option-icon" aria-hidden="true">{{ option.icon }}</mat-icon>
-            <span class="wizard-option-copy">
-              <span class="wizard-option-label">{{ option.label }}</span>
-              <span class="wizard-option-description">{{ option.description }}</span>
-            </span>
-          </button>
-        }
-      </div>
-    }
-  </section>
+      @if (isLoadingVisualizations()) {
+        <div class="visualization-status">
+          <mat-progress-spinner mode="indeterminate" diameter="32" />
+          <p>Loading visualization types…</p>
+        </div>
+      } @else if (visualizationOptions().length === 0) {
+        <p class="visualization-hint">No visualization types are available for this metric.</p>
+      } @else {
+        <div
+          class="wizard-option-grid"
+          role="radiogroup"
+          aria-labelledby="choose-visualization-title"
+          aria-describedby="choose-visualization-subtitle"
+        >
+          @for (option of visualizationOptions(); track option.technicalName) {
+            <button
+              type="button"
+              class="wizard-option-card"
+              role="radio"
+              [class.selected]="selectedVisualizationType() === option.technicalName"
+              [attr.aria-checked]="selectedVisualizationType() === option.technicalName"
+              (click)="selectVisualization(option.technicalName)"
+              (keydown)="onVisualizationKeydown($event, option.technicalName)"
+            >
+              <mat-icon class="wizard-option-icon" aria-hidden="true">{{ option.icon }}</mat-icon>
+              <span class="wizard-option-copy">
+                <span class="wizard-option-label">{{ option.label }}</span>
+                <span class="wizard-option-description">{{ option.description }}</span>
+              </span>
+            </button>
+          }
+        </div>
+      }
+    </section>
+  }
 </section>
