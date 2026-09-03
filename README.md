@@ -29,7 +29,7 @@ The frontend renders those widgets. Filtering and aggregation run on the backend
 ## Features
 
 - Configurable dashboard of user-created analytics widgets
-- Four-step create/edit wizard (data type, visualization, configuration, review)
+- Three-step create/edit wizard (content, configuration, review)
 - Visualizations: line chart, bar chart, pie chart, doughnut chart, and data grid (availability depends on the selected metric)
 - Optional filters: laboratory, analysis category, priority, and status (where the metric supports them)
 - Optional date range for Analysis Volume, Processing Time, and Completion Rate (empty dates default to the last 12 months on the server)
@@ -54,16 +54,15 @@ The frontend renders those widgets. Filtering and aggregation run on the backend
 | Completion Rate | Ratio of completed analyses to all analyses |
 | Delayed Analyses | Analyses that exceed expected processing time |
 
-Not every visualization is offered for every metric. Compatible chart types are selected in the wizard after the metric.
+Not every visualization is offered for every metric. Compatible chart types are shown in the wizard after the metric is selected.
 
 ## Configurable Dashboard
 
-Creating or editing a widget uses four steps:
+Creating or editing a widget uses three steps:
 
-1. **Select Data** — choose the metric (`MetricDefinition`)
-2. **Select Visualization Type** — choose how to draw it (`VisualizationType`), from the types allowed for that metric
-3. **Configure** — name, optional description, and optional filters
-4. **Review & Create** — confirm, then save (or save changes when editing)
+1. **Choose content** — select the metric (`MetricDefinition`) and a compatible visualization (`VisualizationType`)
+2. **Configure** — name, optional description, and optional filters
+3. **Review & Create** — confirm, then save (or save changes when editing)
 
 `MetricDefinition` is **what** is calculated. `VisualizationType` is **how** it is visualized. For example, Analysis Volume can be a line chart, bar chart, or data grid.
 

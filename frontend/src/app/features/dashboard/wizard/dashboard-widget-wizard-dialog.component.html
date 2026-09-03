@@ -15,19 +15,14 @@
 <mat-dialog-content class="wizard-content">
   @switch (step()) {
     @case (1) {
-      <app-select-data-step
-        [selected]="state.selectedMetricDefinition()"
-        (selectedChange)="state.setMetricDefinition($event)"
+      <app-choose-content-step
+        [selectedMetricDefinition]="state.selectedMetricDefinition()"
+        [selectedVisualizationType]="state.selectedVisualizationType()"
+        (selectedMetricDefinitionChange)="state.setMetricDefinition($event)"
+        (selectedVisualizationTypeChange)="state.setVisualizationType($event)"
       />
     }
     @case (2) {
-      <app-select-visualization-type-step
-        [selectedMetricDefinition]="state.selectedMetricDefinition()"
-        [selected]="state.selectedVisualizationType()"
-        (selectedChange)="state.setVisualizationType($event)"
-      />
-    }
-    @case (3) {
       <app-configure-dashboard-widget-step />
     }
     @default {
@@ -67,14 +62,14 @@
       <button
         mat-flat-button
         type="button"
-        [disabled]="state.selectedMetricDefinition() === null || isSaving()"
+        [disabled]="nextDisabled() || isSaving()"
         (click)="continue()"
       >
         Next
       </button>
     } @else {
       <button mat-button type="button" [disabled]="isSaving()" (click)="goBack()">Back</button>
-      @if (step() === 4) {
+      @if (step() === 3) {
         <button mat-flat-button type="button" [disabled]="isSaving()" (click)="saveDashboardWidget()">
           @if (isSaving()) {
             {{ state.isEditing() ? 'Saving…' : 'Creating…' }}

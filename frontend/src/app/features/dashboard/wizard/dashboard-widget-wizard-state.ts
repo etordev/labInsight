@@ -17,6 +17,15 @@ export class DashboardWidgetWizardState {
   readonly selectedVisualizationType = signal<VisualizationTypeTechnicalName | null>(null);
   readonly form: DashboardWidgetWizardForm = createDashboardWidgetWizardForm();
   readonly isEditing = computed(() => this.dashboardWidgetId() !== null);
+  readonly canAdvanceFromContent = computed(() => {
+    const metricDefinition = this.selectedMetricDefinition();
+    const visualizationType = this.selectedVisualizationType();
+    if (!metricDefinition || !visualizationType) {
+      return false;
+    }
+
+    return getAllowedVisualizationTypes(metricDefinition).includes(visualizationType);
+  });
 
   hydrate(item: DashboardWidget): void {
     this.dashboardWidgetId.set(item.id);

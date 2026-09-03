@@ -9,12 +9,11 @@ import { serializeDashboardWidgetContent } from '../models/build-dashboard-widge
 import { DashboardWidget } from '../models/dashboard-widget.model';
 import { DashboardWidgetService } from '../services/dashboard-widget.service';
 import { confirmDeleteDashboardWidget } from '../components/confirm-dialog/confirm-dialog.component';
+import { ChooseContentStepComponent } from './choose-content-step/choose-content-step.component';
 import { ConfigureDashboardWidgetStepComponent } from './configure-dashboard-widget-step/configure-dashboard-widget-step.component';
 import { DashboardWidgetWizardCatalog } from './dashboard-widget-wizard-catalog';
 import { DashboardWidgetWizardState } from './dashboard-widget-wizard-state';
 import { ReviewDashboardWidgetStepComponent } from './review-dashboard-widget-step/review-dashboard-widget-step.component';
-import { SelectDataStepComponent } from './select-data-step/select-data-step.component';
-import { SelectVisualizationTypeStepComponent } from './select-visualization-type-step/select-visualization-type-step.component';
 
 export interface DashboardWidgetWizardDialogData {
   dashboardWidget?: DashboardWidget;
@@ -30,10 +29,9 @@ export type DashboardWidgetWizardCloseResult =
     MatButtonModule,
     MatDialogModule,
     MatIconModule,
+    ChooseContentStepComponent,
     ConfigureDashboardWidgetStepComponent,
-    ReviewDashboardWidgetStepComponent,
-    SelectDataStepComponent,
-    SelectVisualizationTypeStepComponent
+    ReviewDashboardWidgetStepComponent
   ],
   providers: [DashboardWidgetWizardState, DashboardWidgetWizardCatalog],
   templateUrl: './dashboard-widget-wizard-dialog.component.html',
@@ -47,7 +45,7 @@ export class DashboardWidgetWizardDialogComponent implements OnInit {
   readonly state = inject(DashboardWidgetWizardState);
   readonly catalog = inject(DashboardWidgetWizardCatalog);
 
-  readonly step = signal<1 | 2 | 3 | 4>(1);
+  readonly step = signal<1 | 2 | 3>(1);
   readonly isSaving = signal(false);
   readonly saveError = signal<string | null>(null);
 
@@ -74,44 +72,28 @@ export class DashboardWidgetWizardDialogComponent implements OnInit {
 
   goBack(): void {
     this.saveError.set(null);
-    const current = this.step();
-    if (current === 4) {
-      this.step.set(3);
-      return;
-    }
-
-    if (current === 3) {
-      this.step.set(2);
-      return;
-    }
-
-    this.step.set(1);
+    this.step.set(this.step() === 3 ? 2 : 1);
   }
 
   continue(): void {
     this.saveError.set(null);
 
-    if (this.step() === 1 && this.state.selectedMetricDefinition() !== null) {
+    if (this.step() === 1 && this.state.canAdvanceFromContent()) {
       this.step.set(2);
       return;
     }
 
-    if (this.step() === 2 && this.state.selectedVisualizationType() !== null) {
+    if (this.step() === 2 && this.state.form.valid) {
       this.step.set(3);
-      return;
-    }
-
-    if (this.step() === 3 && this.state.form.valid) {
-      this.step.set(4);
     }
   }
 
   nextDisabled(): boolean {
-    if (this.step() === 2) {
-      return this.state.selectedVisualizationType() === null;
+    if (this.step() === 1) {
+      return !this.state.canAdvanceFromContent();
     }
 
-    if (this.step() === 3) {
+    if (this.step() === 2) {
       return this.formInvalid() ?? true;
     }
 
