@@ -46,9 +46,10 @@
 
 .wizard-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: 0.5rem 0.75rem;
   width: 100%;
 }
 
@@ -56,16 +57,31 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
+  flex-shrink: 0;
+  gap: 0.5rem;
   margin-left: auto;
 }
 
 .required-hint {
+  flex: 1 1 14rem;
   margin: 0;
+  margin-right: auto;
+  min-width: min(100%, 12rem);
   color: var(--mat-sys-error);
   font-size: 0.8rem;
   line-height: 1.3;
+}
+
+@media (max-width: 36rem) {
+  .required-hint {
+    flex: 1 1 100%;
+    margin-right: 0;
+  }
+
+  .wizard-actions-end {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 .delete-action {

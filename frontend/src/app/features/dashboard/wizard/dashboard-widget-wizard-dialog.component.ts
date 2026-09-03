@@ -100,6 +100,18 @@ export class DashboardWidgetWizardDialogComponent implements OnInit {
     return true;
   }
 
+  requiredHint(): string | null {
+    if (this.step() === 1 && this.nextDisabled()) {
+      return 'Select a metric and a visualization to continue.';
+    }
+
+    if (this.step() === 2 && this.nextDisabled()) {
+      return 'Enter a name to continue.';
+    }
+
+    return null;
+  }
+
   saveDashboardWidget(): void {
     const dataType = this.state.selectedMetricDefinition();
     const visualizationType = this.state.selectedVisualizationType();

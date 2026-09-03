@@ -36,19 +36,23 @@
 </mat-dialog-content>
 
 <mat-dialog-actions class="wizard-actions">
-  @if (state.isEditing()) {
-    <button
-      mat-flat-button
-      class="delete-action"
-      type="button"
-      [disabled]="isSaving()"
-      (click)="requestDelete()"
-    >
-      Delete widget
-    </button>
+  @if (requiredHint(); as hint) {
+    <p class="required-hint">{{ hint }}</p>
   }
 
   <div class="wizard-actions-end">
+    @if (state.isEditing()) {
+      <button
+        mat-flat-button
+        class="delete-action"
+        type="button"
+        [disabled]="isSaving()"
+        (click)="requestDelete()"
+      >
+        Delete widget
+      </button>
+    }
+
     @if (step() === 1) {
       <button
         mat-flat-button
@@ -59,9 +63,6 @@
       >
         Cancel
       </button>
-      @if (nextDisabled()) {
-        <p class="required-hint">Select a metric and a visualization to continue.</p>
-      }
       <button
         mat-flat-button
         type="button"
@@ -83,9 +84,6 @@
           }
         </button>
       } @else {
-        @if (nextDisabled()) {
-          <p class="required-hint">Enter a name to continue.</p>
-        }
         <button
           mat-flat-button
           type="button"
