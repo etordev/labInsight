@@ -1,0 +1,21 @@
+<section class="wizard-step">
+  <header class="wizard-step-heading">
+    <h3 id="review-widget-title">Review</h3>
+    <p id="review-widget-subtitle">
+      {{
+        isEditing()
+          ? 'Review your widget configuration before saving your changes.'
+          : 'Review your widget configuration before creating it.'
+      }}
+    </p>
+  </header>
+
+  <dl class="review-list">
+    @for (row of rows(); track row.label) {
+      <div class="review-row">
+        <dt>{{ row.label }}</dt>
+        <dd>{{ row.value }}</dd>
+      </div>
+    }
+  </dl>
+</section>

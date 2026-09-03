@@ -10,15 +10,15 @@ export interface ConfirmDialogData {
   cancelLabel?: string;
 }
 
-export function confirmDeleteGraph(dialog: MatDialog): Observable<boolean | undefined> {
+export function confirmDeleteDashboardWidget(dialog: MatDialog): Observable<boolean | undefined> {
   return dialog
     .open<ConfirmDialogComponent, ConfirmDialogData, boolean>(ConfirmDialogComponent, {
       width: 'min(28rem, calc(100vw - 2rem))',
       autoFocus: 'first-tabbable',
       restoreFocus: true,
       data: {
-        title: 'Delete graph',
-        message: 'Are you sure you want to delete this graph?',
+        title: 'Delete widget',
+        message: 'Are you sure you want to delete this widget?',
         confirmLabel: 'Delete'
       }
     })

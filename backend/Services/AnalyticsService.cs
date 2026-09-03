@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LabInsight.Api.Services;
 
 public class AnalyticsService(
-    IGraphItemRepository graphItemRepository,
+    IDashboardWidgetRepository dashboardWidgetRepository,
     ILabAnalysisRepository labAnalysisRepository) : IAnalyticsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -18,12 +18,12 @@ public class AnalyticsService(
         PropertyNameCaseInsensitive = true
     };
 
-    public async Task<GraphItemAnalyticsDto?> GetGraphItemDataAsync(
-        int graphItemId,
+    public async Task<DashboardWidgetAnalyticsDto?> GetDashboardWidgetDataAsync(
+        int dashboardWidgetId,
         bool isDeleted,
         CancellationToken cancellationToken)
     {
-        var item = await graphItemRepository.GetWithTypesAsync(graphItemId, isDeleted, cancellationToken);
+        var item = await dashboardWidgetRepository.GetWithTypesAsync(dashboardWidgetId, isDeleted, cancellationToken);
         if (item is null)
         {
             return null;
@@ -33,9 +33,9 @@ public class AnalyticsService(
         var query = ApplyFilters(
             labAnalysisRepository.QueryForAnalytics(isDeleted),
             content,
-            item.GraphDataType.TechnicalName);
-        var dataType = item.GraphDataType.TechnicalName;
-        var graphType = item.GraphType.TechnicalName;
+            item.MetricDefinition.TechnicalName);
+        var dataType = item.MetricDefinition.TechnicalName;
+        var visualizationType = item.VisualizationType.TechnicalName;
 
         return dataType switch
         {
@@ -46,41 +46,41 @@ public class AnalyticsService(
             "LABORATORY_WORKLOAD" => await GetLaboratoryWorkloadAsync(query, cancellationToken),
             "PRIORITY_DISTRIBUTION" => await GetPriorityDistributionAsync(query, cancellationToken),
             "COMPLETION_RATE" => await GetCompletionRateAsync(query, cancellationToken),
-            "DELAYED_ANALYSES" => await GetDelayedAnalysesAsync(query, graphType, cancellationToken),
-            _ => new GraphItemAnalyticsDto
+            "DELAYED_ANALYSES" => await GetDelayedAnalysesAsync(query, visualizationType, cancellationToken),
+            _ => new DashboardWidgetAnalyticsDto
             {
-                GraphDataType = dataType,
+                MetricDefinition = dataType,
                 Unit = "analyses",
                 Data = []
             }
         };
     }
 
-    private static GraphItemContentPayload DeserializeContent(string? content)
+    private static DashboardWidgetContentPayload DeserializeContent(string? content)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
-            return new GraphItemContentPayload();
+            return new DashboardWidgetContentPayload();
         }
 
         try
         {
-            return JsonSerializer.Deserialize<GraphItemContentPayload>(content, JsonOptions)
-                   ?? new GraphItemContentPayload();
+            return JsonSerializer.Deserialize<DashboardWidgetContentPayload>(content, JsonOptions)
+                   ?? new DashboardWidgetContentPayload();
         }
         catch (JsonException)
         {
-            return new GraphItemContentPayload();
+            return new DashboardWidgetContentPayload();
         }
     }
 
     private static IQueryable<LabAnalysis> ApplyFilters(
         IQueryable<LabAnalysis> query,
-        GraphItemContentPayload content,
-        string graphDataType)
+        DashboardWidgetContentPayload content,
+        string metricDefinition)
     {
         var filters = content.Filters;
-        query = ApplyReceivedAtDateRange(query, filters, graphDataType);
+        query = ApplyReceivedAtDateRange(query, filters, metricDefinition);
 
         if (filters is null)
         {
@@ -112,10 +112,10 @@ public class AnalyticsService(
 
     private static IQueryable<LabAnalysis> ApplyReceivedAtDateRange(
         IQueryable<LabAnalysis> query,
-        GraphItemFilterPayload? filters,
-        string graphDataType)
+        DashboardWidgetFilterPayload? filters,
+        string metricDefinition)
     {
-        if (!GraphMetadata.SupportsDateRange(graphDataType))
+        if (!DashboardCatalog.SupportsDateRange(metricDefinition))
         {
             return query;
         }
@@ -164,9 +164,9 @@ public class AnalyticsService(
         return true;
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetAnalysisVolumeAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetAnalysisVolumeAsync(
         IQueryable<LabAnalysis> query,
-        GraphItemContentPayload content,
+        DashboardWidgetContentPayload content,
         CancellationToken cancellationToken)
     {
         var groupBy = (content.GroupBy ?? "MONTH").ToUpperInvariant();
@@ -222,15 +222,15 @@ public class AnalyticsService(
                 .ToList();
         }
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "ANALYSIS_VOLUME",
+            MetricDefinition = "ANALYSIS_VOLUME",
             Unit = "analyses",
             Data = points
         };
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetAnalysisStatusAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetAnalysisStatusAsync(
         IQueryable<LabAnalysis> query,
         CancellationToken cancellationToken)
     {
@@ -258,17 +258,17 @@ public class AnalyticsService(
             .Where(point => point.Value > 0)
             .ToList();
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "ANALYSIS_STATUS",
+            MetricDefinition = "ANALYSIS_STATUS",
             Unit = "analyses",
             Data = points
         };
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetProcessingTimeAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetProcessingTimeAsync(
         IQueryable<LabAnalysis> query,
-        GraphItemContentPayload content,
+        DashboardWidgetContentPayload content,
         CancellationToken cancellationToken)
     {
         var completed = query.Where(analysis =>
@@ -370,15 +370,15 @@ public class AnalyticsService(
                 .ToList();
         }
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "PROCESSING_TIME",
+            MetricDefinition = "PROCESSING_TIME",
             Unit = "hours",
             Data = points
         };
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetAnalysisCategoryAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetAnalysisCategoryAsync(
         IQueryable<LabAnalysis> query,
         CancellationToken cancellationToken)
     {
@@ -392,15 +392,15 @@ public class AnalyticsService(
             .OrderBy(row => row.Label)
             .ToListAsync(cancellationToken);
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "ANALYSIS_CATEGORY",
+            MetricDefinition = "ANALYSIS_CATEGORY",
             Unit = "analyses",
             Data = rows
         };
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetLaboratoryWorkloadAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetLaboratoryWorkloadAsync(
         IQueryable<LabAnalysis> query,
         CancellationToken cancellationToken)
     {
@@ -418,15 +418,15 @@ public class AnalyticsService(
             .OrderBy(row => row.Label)
             .ToListAsync(cancellationToken);
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "LABORATORY_WORKLOAD",
+            MetricDefinition = "LABORATORY_WORKLOAD",
             Unit = "analyses",
             Data = rows
         };
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetPriorityDistributionAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetPriorityDistributionAsync(
         IQueryable<LabAnalysis> query,
         CancellationToken cancellationToken)
     {
@@ -446,24 +446,24 @@ public class AnalyticsService(
             .Where(point => point.Value > 0)
             .ToList();
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "PRIORITY_DISTRIBUTION",
+            MetricDefinition = "PRIORITY_DISTRIBUTION",
             Unit = "analyses",
             Data = points
         };
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetCompletionRateAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetCompletionRateAsync(
         IQueryable<LabAnalysis> query,
         CancellationToken cancellationToken)
     {
         var total = await query.CountAsync(cancellationToken);
         if (total == 0)
         {
-            return new GraphItemAnalyticsDto
+            return new DashboardWidgetAnalyticsDto
             {
-                GraphDataType = "COMPLETION_RATE",
+                MetricDefinition = "COMPLETION_RATE",
                 Unit = "percent",
                 Data = []
             };
@@ -475,9 +475,9 @@ public class AnalyticsService(
         var completedPercent = Math.Round(completed * 100.0 / total, 1);
         var remaining = Math.Round(100.0 - completedPercent, 1);
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "COMPLETION_RATE",
+            MetricDefinition = "COMPLETION_RATE",
             Unit = "percent",
             Data =
             [
@@ -487,14 +487,14 @@ public class AnalyticsService(
         };
     }
 
-    private static async Task<GraphItemAnalyticsDto> GetDelayedAnalysesAsync(
+    private static async Task<DashboardWidgetAnalyticsDto> GetDelayedAnalysesAsync(
         IQueryable<LabAnalysis> query,
-        string graphType,
+        string visualizationType,
         CancellationToken cancellationToken)
     {
         var delayed = query.Where(analysis => analysis.Status == AnalysisStatus.Delayed);
 
-        if (graphType == "DATA_GRID")
+        if (visualizationType == "DATA_GRID")
         {
             var now = DateTime.UtcNow;
             var rows = await delayed
@@ -518,9 +518,9 @@ public class AnalyticsService(
                 row.ElapsedProcessingHours = Math.Round((now - row.ReceivedAt).TotalHours, 1);
             }
 
-            return new GraphItemAnalyticsDto
+            return new DashboardWidgetAnalyticsDto
             {
-                GraphDataType = "DELAYED_ANALYSES",
+                MetricDefinition = "DELAYED_ANALYSES",
                 Unit = "analyses",
                 Data = [],
                 Rows = rows
@@ -537,9 +537,9 @@ public class AnalyticsService(
             .OrderBy(row => row.Label)
             .ToListAsync(cancellationToken);
 
-        return new GraphItemAnalyticsDto
+        return new DashboardWidgetAnalyticsDto
         {
-            GraphDataType = "DELAYED_ANALYSES",
+            MetricDefinition = "DELAYED_ANALYSES",
             Unit = "analyses",
             Data = points
         };

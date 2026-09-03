@@ -24,11 +24,11 @@ body {
   font-family: Roboto, sans-serif;
 }
 
-.graph-wizard-dialog .mat-mdc-dialog-surface {
+.dashboard-widget-wizard-dialog .mat-mdc-dialog-surface {
   padding-bottom: 0.5rem;
 }
 
-.graph-description-tooltip {
+.widget-description-tooltip {
   max-width: min(22rem, calc(100vw - 2rem));
   white-space: pre-wrap;
   font-size: 0.8125rem;

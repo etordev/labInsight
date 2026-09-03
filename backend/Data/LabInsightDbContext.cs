@@ -9,9 +9,9 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
     public DbSet<Laboratory> Laboratories => Set<Laboratory>();
     public DbSet<AnalysisCategory> AnalysisCategories => Set<AnalysisCategory>();
     public DbSet<LabAnalysis> LabAnalyses => Set<LabAnalysis>();
-    public DbSet<GraphTypeEntity> GraphTypes => Set<GraphTypeEntity>();
-    public DbSet<GraphDataTypeEntity> GraphDataTypes => Set<GraphDataTypeEntity>();
-    public DbSet<GraphItemEntity> GraphItems => Set<GraphItemEntity>();
+    public DbSet<VisualizationTypeEntity> VisualizationTypes => Set<VisualizationTypeEntity>();
+    public DbSet<MetricDefinitionEntity> MetricDefinitions => Set<MetricDefinitionEntity>();
+    public DbSet<DashboardWidgetEntity> DashboardWidgets => Set<DashboardWidgetEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -62,27 +62,27 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             ConfigureAudit(entity);
         });
 
-        modelBuilder.Entity<GraphTypeEntity>(entity =>
+        modelBuilder.Entity<VisualizationTypeEntity>(entity =>
         {
-            entity.ToTable("graph_types");
+            entity.ToTable("visualization_types");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TechnicalName).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.TechnicalName).IsUnique();
             ConfigureAudit(entity);
         });
 
-        modelBuilder.Entity<GraphDataTypeEntity>(entity =>
+        modelBuilder.Entity<MetricDefinitionEntity>(entity =>
         {
-            entity.ToTable("graph_data_types");
+            entity.ToTable("metric_definitions");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TechnicalName).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.TechnicalName).IsUnique();
             ConfigureAudit(entity);
         });
 
-        modelBuilder.Entity<GraphItemEntity>(entity =>
+        modelBuilder.Entity<DashboardWidgetEntity>(entity =>
         {
-            entity.ToTable("graph_items");
+            entity.ToTable("dashboard_widgets");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(500);
@@ -90,15 +90,15 @@ public class LabInsightDbContext(DbContextOptions<LabInsightDbContext> options) 
             entity.Property(e => e.Ordering).IsRequired();
             entity.HasIndex(e => e.Ordering);
 
-            entity.HasOne(e => e.GraphType)
-                .WithMany(t => t.GraphItems)
-                .HasForeignKey(e => e.GraphTypeId)
+            entity.HasOne(e => e.VisualizationType)
+                .WithMany(t => t.DashboardWidgets)
+                .HasForeignKey(e => e.VisualizationTypeId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
-            entity.HasOne(e => e.GraphDataType)
-                .WithMany(d => d.GraphItems)
-                .HasForeignKey(e => e.GraphDataTypeId)
+            entity.HasOne(e => e.MetricDefinition)
+                .WithMany(d => d.DashboardWidgets)
+                .HasForeignKey(e => e.MetricDefinitionId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
             ConfigureAudit(entity);

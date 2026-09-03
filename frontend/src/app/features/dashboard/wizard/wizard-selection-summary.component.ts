@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { GRAPH_DATA_TYPE_UI_BY_NAME } from '../config/graph-data-type-ui.config';
-import { GRAPH_TYPE_UI_BY_NAME } from '../config/graph-type-ui.config';
-import { GraphWizardState } from './graph-wizard-state';
+import { METRIC_DEFINITION_UI_BY_NAME } from '../config/metric-definition-ui.config';
+import { VISUALIZATION_TYPE_UI_BY_NAME } from '../config/visualization-type-ui.config';
+import { DashboardWidgetWizardState } from './dashboard-widget-wizard-state';
 
 @Component({
   selector: 'app-wizard-selection-summary',
@@ -50,26 +50,26 @@ import { GraphWizardState } from './graph-wizard-state';
   `
 })
 export class WizardSelectionSummaryComponent {
-  private readonly state = inject(GraphWizardState);
+  private readonly state = inject(DashboardWidgetWizardState);
 
-  readonly showGraphType = input(false);
+  readonly showVisualizationType = input(false);
 
   readonly rows = computed(() => {
     const items: { label: string; value: string }[] = [];
-    const dataType = this.state.selectedGraphDataType();
+    const dataType = this.state.selectedMetricDefinition();
     if (dataType) {
       items.push({
         label: 'Selected data',
-        value: GRAPH_DATA_TYPE_UI_BY_NAME[dataType].label
+        value: METRIC_DEFINITION_UI_BY_NAME[dataType].label
       });
     }
 
-    if (this.showGraphType()) {
-      const graphType = this.state.selectedGraphType();
-      if (graphType) {
+    if (this.showVisualizationType()) {
+      const visualizationType = this.state.selectedVisualizationType();
+      if (visualizationType) {
         items.push({
-          label: 'Selected graph type',
-          value: GRAPH_TYPE_UI_BY_NAME[graphType].label
+          label: 'Selected visualization type',
+          value: VISUALIZATION_TYPE_UI_BY_NAME[visualizationType].label
         });
       }
     }

@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { AnalyticsPoint } from '../../models/graph-item-analytics.model';
+import { AnalyticsPoint } from '../../models/dashboard-widget-analytics.model';
 import { ChartViewComponent } from './chart-view.component';
 
 @Component({

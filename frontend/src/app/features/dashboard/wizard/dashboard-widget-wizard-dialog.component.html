@@ -1,0 +1,99 @@
+<h2 mat-dialog-title class="wizard-title">
+  <span>{{ state.isEditing() ? 'Edit widget' : 'Create a new widget' }}</span>
+  <button
+    mat-icon-button
+    class="close-button"
+    type="button"
+    aria-label="Close"
+    [disabled]="isSaving()"
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content class="wizard-content">
+  @switch (step()) {
+    @case (1) {
+      <app-select-data-step
+        [selected]="state.selectedMetricDefinition()"
+        (selectedChange)="state.setMetricDefinition($event)"
+      />
+    }
+    @case (2) {
+      <app-select-visualization-type-step
+        [selectedMetricDefinition]="state.selectedMetricDefinition()"
+        [selected]="state.selectedVisualizationType()"
+        (selectedChange)="state.setVisualizationType($event)"
+      />
+    }
+    @case (3) {
+      <app-configure-dashboard-widget-step />
+    }
+    @default {
+      <app-review-dashboard-widget-step />
+    }
+  }
+
+  @if (saveError(); as error) {
+    <p class="create-error" role="alert">{{ error }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions class="wizard-actions">
+  @if (state.isEditing()) {
+    <button
+      mat-flat-button
+      class="delete-action"
+      type="button"
+      [disabled]="isSaving()"
+      (click)="requestDelete()"
+    >
+      Delete widget
+    </button>
+  }
+
+  <div class="wizard-actions-end">
+    @if (step() === 1) {
+      <button
+        mat-flat-button
+        class="cancel-action"
+        type="button"
+        [disabled]="isSaving()"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        type="button"
+        [disabled]="state.selectedMetricDefinition() === null || isSaving()"
+        (click)="continue()"
+      >
+        Next
+      </button>
+    } @else {
+      <button mat-button type="button" [disabled]="isSaving()" (click)="goBack()">Back</button>
+      @if (step() === 4) {
+        <button mat-flat-button type="button" [disabled]="isSaving()" (click)="saveDashboardWidget()">
+          @if (isSaving()) {
+            {{ state.isEditing() ? 'Saving…' : 'Creating…' }}
+          } @else if (state.isEditing()) {
+            Save changes
+          } @else {
+            Create widget
+          }
+        </button>
+      } @else {
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="nextDisabled() || isSaving()"
+          (click)="continue()"
+        >
+          Next
+        </button>
+      }
+    }
+  </div>
+</mat-dialog-actions>

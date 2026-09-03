@@ -54,7 +54,7 @@ namespace LabInsight.Api.Migrations
                     b.ToTable("analysis_categories", (string)null);
                 });
 
-            modelBuilder.Entity("LabInsight.Api.Entities.GraphDataTypeEntity", b =>
+            modelBuilder.Entity("LabInsight.Api.Entities.MetricDefinitionEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,10 +82,10 @@ namespace LabInsight.Api.Migrations
                     b.HasIndex("TechnicalName")
                         .IsUnique();
 
-                    b.ToTable("graph_data_types", (string)null);
+                    b.ToTable("metric_definitions", (string)null);
                 });
 
-            modelBuilder.Entity("LabInsight.Api.Entities.GraphItemEntity", b =>
+            modelBuilder.Entity("LabInsight.Api.Entities.DashboardWidgetEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,10 +103,10 @@ namespace LabInsight.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<int>("GraphDataTypeId")
+                    b.Property<int>("MetricDefinitionId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("GraphTypeId")
+                    b.Property<int>("VisualizationTypeId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
@@ -124,18 +124,18 @@ namespace LabInsight.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GraphDataTypeId");
+                    b.HasIndex("MetricDefinitionId");
 
-                    b.HasIndex("GraphTypeId");
+                    b.HasIndex("VisualizationTypeId");
 
                     b.HasIndex("IsDeleted");
 
                     b.HasIndex("Ordering");
 
-                    b.ToTable("graph_items", (string)null);
+                    b.ToTable("dashboard_widgets", (string)null);
                 });
 
-            modelBuilder.Entity("LabInsight.Api.Entities.GraphTypeEntity", b =>
+            modelBuilder.Entity("LabInsight.Api.Entities.VisualizationTypeEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -163,7 +163,7 @@ namespace LabInsight.Api.Migrations
                     b.HasIndex("TechnicalName")
                         .IsUnique();
 
-                    b.ToTable("graph_types", (string)null);
+                    b.ToTable("visualization_types", (string)null);
                 });
 
             modelBuilder.Entity("LabInsight.Api.Entities.LabAnalysis", b =>
@@ -263,23 +263,23 @@ namespace LabInsight.Api.Migrations
                     b.ToTable("laboratories", (string)null);
                 });
 
-            modelBuilder.Entity("LabInsight.Api.Entities.GraphItemEntity", b =>
+            modelBuilder.Entity("LabInsight.Api.Entities.DashboardWidgetEntity", b =>
                 {
-                    b.HasOne("LabInsight.Api.Entities.GraphDataTypeEntity", "GraphDataType")
-                        .WithMany("GraphItems")
-                        .HasForeignKey("GraphDataTypeId")
+                    b.HasOne("LabInsight.Api.Entities.MetricDefinitionEntity", "MetricDefinition")
+                        .WithMany("DashboardWidgets")
+                        .HasForeignKey("MetricDefinitionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("LabInsight.Api.Entities.GraphTypeEntity", "GraphType")
-                        .WithMany("GraphItems")
-                        .HasForeignKey("GraphTypeId")
+                    b.HasOne("LabInsight.Api.Entities.VisualizationTypeEntity", "VisualizationType")
+                        .WithMany("DashboardWidgets")
+                        .HasForeignKey("VisualizationTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("GraphDataType");
+                    b.Navigation("MetricDefinition");
 
-                    b.Navigation("GraphType");
+                    b.Navigation("VisualizationType");
                 });
 
             modelBuilder.Entity("LabInsight.Api.Entities.LabAnalysis", b =>
@@ -306,14 +306,14 @@ namespace LabInsight.Api.Migrations
                     b.Navigation("Analyses");
                 });
 
-            modelBuilder.Entity("LabInsight.Api.Entities.GraphDataTypeEntity", b =>
+            modelBuilder.Entity("LabInsight.Api.Entities.MetricDefinitionEntity", b =>
                 {
-                    b.Navigation("GraphItems");
+                    b.Navigation("DashboardWidgets");
                 });
 
-            modelBuilder.Entity("LabInsight.Api.Entities.GraphTypeEntity", b =>
+            modelBuilder.Entity("LabInsight.Api.Entities.VisualizationTypeEntity", b =>
                 {
-                    b.Navigation("GraphItems");
+                    b.Navigation("DashboardWidgets");
                 });
 
             modelBuilder.Entity("LabInsight.Api.Entities.Laboratory", b =>

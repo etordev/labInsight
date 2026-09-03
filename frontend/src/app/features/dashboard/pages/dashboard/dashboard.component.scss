@@ -181,7 +181,7 @@
   height: 100%;
 }
 
-.grid-item-drag > app-graph-item {
+.grid-item-drag > app-dashboard-widget {
   display: flex;
   flex: 1;
   min-width: 0;
@@ -208,7 +208,7 @@
   touch-action: none;
 }
 
-.dashboard-grid.is-rearranging .grid-item-drag > app-graph-item {
+.dashboard-grid.is-rearranging .grid-item-drag > app-dashboard-widget {
   pointer-events: none;
 }
 

@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { AnalyticsPoint } from '../../models/graph-item-analytics.model';
+import { AnalyticsPoint } from '../../models/dashboard-widget-analytics.model';
 import { CHART_COLORS } from './chart-colors';
 
 @Component({

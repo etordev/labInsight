@@ -41,16 +41,16 @@ builder.Services.AddDbContext<LabInsightDbContext>(options =>
 builder.Services.AddScoped<ILaboratoryRepository, LaboratoryRepository>();
 builder.Services.AddScoped<IAnalysisCategoryRepository, AnalysisCategoryRepository>();
 builder.Services.AddScoped<ILabAnalysisRepository, LabAnalysisRepository>();
-builder.Services.AddScoped<IGraphTypeRepository, GraphTypeRepository>();
-builder.Services.AddScoped<IGraphDataTypeRepository, GraphDataTypeRepository>();
-builder.Services.AddScoped<IGraphItemRepository, GraphItemRepository>();
+builder.Services.AddScoped<IVisualizationTypeRepository, VisualizationTypeRepository>();
+builder.Services.AddScoped<IMetricDefinitionRepository, MetricDefinitionRepository>();
+builder.Services.AddScoped<IDashboardWidgetRepository, DashboardWidgetRepository>();
 builder.Services.AddScoped<DatabaseSeeder>();
 builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
 builder.Services.AddScoped<IAnalysisCategoryService, AnalysisCategoryService>();
 builder.Services.AddScoped<ILabAnalysisService, LabAnalysisService>();
-builder.Services.AddScoped<IGraphTypeService, GraphTypeService>();
-builder.Services.AddScoped<IGraphDataTypeService, GraphDataTypeService>();
-builder.Services.AddScoped<IGraphItemService, GraphItemService>();
+builder.Services.AddScoped<IVisualizationTypeService, VisualizationTypeService>();
+builder.Services.AddScoped<IMetricDefinitionService, MetricDefinitionService>();
+builder.Services.AddScoped<IDashboardWidgetService, DashboardWidgetService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>

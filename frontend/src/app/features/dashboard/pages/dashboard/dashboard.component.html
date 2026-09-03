@@ -8,10 +8,10 @@
           How it works
         </button>
       </div>
-      <p class="lede">Build a view of laboratory operations, one graph at a time.</p>
+      <p class="lede">Build a view of laboratory operations, one widget at a time.</p>
     </div>
 
-    @if (!isLoading() && !hasError() && graphItems().length > 0) {
+    @if (!isLoading() && !hasError() && dashboardWidgets().length > 0) {
       <div class="toolbar-actions">
         @if (isRearranging()) {
           <button
@@ -36,15 +36,15 @@
             mat-stroked-button
             class="rearrange-button"
             type="button"
-            [disabled]="graphItems().length < 2"
+            [disabled]="dashboardWidgets().length < 2"
             (click)="onStartRearrange()"
           >
             <mat-icon>drag_indicator</mat-icon>
-            Move graphs
+            Move widgets
           </button>
-          <button mat-flat-button class="create-button" type="button" (click)="onCreateGraph()">
+          <button mat-flat-button class="create-button" type="button" (click)="onCreateDashboardWidget()">
             <mat-icon>add</mat-icon>
-            Create a new graph
+            Create a new widget
           </button>
         }
       </div>
@@ -63,29 +63,29 @@
       <p>Check that the API is running, then try again.</p>
       <button mat-stroked-button type="button" (click)="retry()">Try again</button>
     </div>
-  } @else if (graphItems().length === 0) {
+  } @else if (dashboardWidgets().length === 0) {
     <div class="panel empty">
       <div class="empty-icon" aria-hidden="true">
         <mat-icon>insights</mat-icon>
       </div>
       <h2>Your dashboard is empty</h2>
       <p>
-        There are no graphs yet. Create one to start tracking volume, status,
+        There are no widgets yet. Create one to start tracking volume, status,
         processing time, or workload across laboratories.
       </p>
-      <button mat-flat-button class="create-button" type="button" (click)="onCreateGraph()">
+      <button mat-flat-button class="create-button" type="button" (click)="onCreateDashboardWidget()">
         <mat-icon>add</mat-icon>
-        Create a new graph
+        Create a new widget
       </button>
     </div>
   } @else {
     <div class="dashboard-grid" [class.is-rearranging]="isRearranging()">
-      @for (item of graphItems(); track item.id) {
+      @for (item of dashboardWidgets(); track item.id) {
         <div
           class="grid-item"
           [class.is-drop-slot]="draggingId() === item.id"
           [style.order]="displayIndex(item.id)"
-          [attr.data-graph-id]="item.id"
+          [attr.data-dashboard-widget-id]="item.id"
         >
           <div
             class="grid-item-drag"
@@ -101,12 +101,12 @@
                 <mat-icon>drag_indicator</mat-icon>
               </div>
             }
-            <app-graph-item
-              [graphItem]="item"
+            <app-dashboard-widget
+              [dashboardWidget]="item"
               [rearrangeMode]="isRearranging()"
-              (edit)="onEditGraph(item)"
-              (remove)="onDeleteGraph(item)"
-              (itemUpdated)="onGraphItemUpdated($event)"
+              (edit)="onEditDashboardWidget(item)"
+              (remove)="onDeleteDashboardWidget(item)"
+              (itemUpdated)="onDashboardWidgetUpdated($event)"
             />
           </div>
         </div>

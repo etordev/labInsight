@@ -4,5 +4,5 @@ namespace LabInsight.Api.Services;
 
 public interface ILabAnalysisService
 {
-    Task<PagedResultDto<LabAnalysisDto>> GetAnalysesAsync(LabAnalysisQuery query, CancellationToken cancellationToken);
+    Task<PagedResultDto<LabAnalysisDto>> GetLabAnalysesAsync(LabAnalysisQuery query, CancellationToken cancellationToken);
 }

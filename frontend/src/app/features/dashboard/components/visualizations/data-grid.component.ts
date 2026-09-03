@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
-import { AnalyticsPoint, DelayedAnalysisRow } from '../../models/graph-item-analytics.model';
+import { AnalyticsPoint, DelayedAnalysisRow } from '../../models/dashboard-widget-analytics.model';
 
 @Component({
   selector: 'app-data-grid',

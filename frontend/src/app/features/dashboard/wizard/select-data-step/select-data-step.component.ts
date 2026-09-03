@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { GRAPH_DATA_TYPE_UI_CONFIG } from '../../config/graph-data-type-ui.config';
-import { GraphDataTypeTechnicalName } from '../../models/graph-data-type-technical-name';
+import { METRIC_DEFINITION_UI_CONFIG } from '../../config/metric-definition-ui.config';
+import { MetricDefinitionTechnicalName } from '../../models/metric-definition-technical-name';
 
 @Component({
   selector: 'app-select-data-step',
@@ -10,16 +10,16 @@ import { GraphDataTypeTechnicalName } from '../../models/graph-data-type-technic
   styleUrl: './select-data-step.component.scss'
 })
 export class SelectDataStepComponent {
-  readonly selected = input<GraphDataTypeTechnicalName | null>(null);
-  readonly selectedChange = output<GraphDataTypeTechnicalName>();
+  readonly selected = input<MetricDefinitionTechnicalName | null>(null);
+  readonly selectedChange = output<MetricDefinitionTechnicalName>();
 
-  readonly options = GRAPH_DATA_TYPE_UI_CONFIG;
+  readonly options = METRIC_DEFINITION_UI_CONFIG;
 
-  select(technicalName: GraphDataTypeTechnicalName): void {
+  select(technicalName: MetricDefinitionTechnicalName): void {
     this.selectedChange.emit(technicalName);
   }
 
-  onCardKeydown(event: KeyboardEvent, technicalName: GraphDataTypeTechnicalName): void {
+  onCardKeydown(event: KeyboardEvent, technicalName: MetricDefinitionTechnicalName): void {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       this.select(technicalName);

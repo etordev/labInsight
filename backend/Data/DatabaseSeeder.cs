@@ -6,12 +6,12 @@ using LabInsight.Api.Repositories;
 namespace LabInsight.Api.Data;
 
 public class DatabaseSeeder(
-    IGraphTypeRepository graphTypeRepository,
-    IGraphDataTypeRepository graphDataTypeRepository,
+    IVisualizationTypeRepository visualizationTypeRepository,
+    IMetricDefinitionRepository metricDefinitionRepository,
     ILaboratoryRepository laboratoryRepository,
     IAnalysisCategoryRepository analysisCategoryRepository,
     ILabAnalysisRepository labAnalysisRepository,
-    IGraphItemRepository graphItemRepository,
+    IDashboardWidgetRepository dashboardWidgetRepository,
     ILogger<DatabaseSeeder> logger)
 {
     private const int SyntheticAnalysisCount = 15_000;
@@ -19,22 +19,22 @@ public class DatabaseSeeder(
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        await SeedGraphTypesAsync(cancellationToken);
-        await SeedGraphDataTypesAsync(cancellationToken);
+        await SeedVisualizationTypesAsync(cancellationToken);
+        await SeedMetricDefinitionsAsync(cancellationToken);
         await SeedLaboratoriesAsync(cancellationToken);
         await SeedAnalysisCategoriesAsync(cancellationToken);
         await SeedLabAnalysesAsync(cancellationToken);
-        await SeedDemoGraphItemsAsync(cancellationToken);
+        await SeedDemoDashboardWidgetsAsync(cancellationToken);
     }
 
-    private async Task SeedGraphTypesAsync(CancellationToken cancellationToken)
+    private async Task SeedVisualizationTypesAsync(CancellationToken cancellationToken)
     {
-        var existing = await graphTypeRepository.ListTechnicalNamesAsync(cancellationToken);
+        var existing = await visualizationTypeRepository.ListTechnicalNamesAsync(cancellationToken);
         var existingNames = existing.ToHashSet(StringComparer.Ordinal);
 
-        var missing = GraphMetadata.GraphTypeTechnicalNames
+        var missing = DashboardCatalog.VisualizationTypeTechnicalNames
             .Where(name => !existingNames.Contains(name))
-            .Select(name => new GraphTypeEntity { TechnicalName = name })
+            .Select(name => new VisualizationTypeEntity { TechnicalName = name })
             .ToList();
 
         if (missing.Count == 0)
@@ -42,19 +42,19 @@ public class DatabaseSeeder(
             return;
         }
 
-        graphTypeRepository.AddRange(missing);
-        await graphTypeRepository.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Upserted {Count} missing graph types.", missing.Count);
+        visualizationTypeRepository.AddRange(missing);
+        await visualizationTypeRepository.SaveChangesAsync(cancellationToken);
+        logger.LogInformation("Upserted {Count} missing visualization types.", missing.Count);
     }
 
-    private async Task SeedGraphDataTypesAsync(CancellationToken cancellationToken)
+    private async Task SeedMetricDefinitionsAsync(CancellationToken cancellationToken)
     {
-        var existing = await graphDataTypeRepository.ListTechnicalNamesAsync(cancellationToken);
+        var existing = await metricDefinitionRepository.ListTechnicalNamesAsync(cancellationToken);
         var existingNames = existing.ToHashSet(StringComparer.Ordinal);
 
-        var missing = GraphMetadata.GraphDataTypeTechnicalNames
+        var missing = DashboardCatalog.MetricDefinitionTechnicalNames
             .Where(name => !existingNames.Contains(name))
-            .Select(name => new GraphDataTypeEntity { TechnicalName = name })
+            .Select(name => new MetricDefinitionEntity { TechnicalName = name })
             .ToList();
 
         if (missing.Count == 0)
@@ -62,9 +62,9 @@ public class DatabaseSeeder(
             return;
         }
 
-        graphDataTypeRepository.AddRange(missing);
-        await graphDataTypeRepository.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Upserted {Count} missing graph data types.", missing.Count);
+        metricDefinitionRepository.AddRange(missing);
+        await metricDefinitionRepository.SaveChangesAsync(cancellationToken);
+        logger.LogInformation("Upserted {Count} missing metric definitions.", missing.Count);
     }
 
     private async Task SeedLaboratoriesAsync(CancellationToken cancellationToken)
@@ -181,77 +181,77 @@ public class DatabaseSeeder(
         logger.LogInformation("Seeded {Count} synthetic lab analyses.", SyntheticAnalysisCount);
     }
 
-    private async Task SeedDemoGraphItemsAsync(CancellationToken cancellationToken)
+    private async Task SeedDemoDashboardWidgetsAsync(CancellationToken cancellationToken)
     {
-        if (await graphItemRepository.AnyAsync(cancellationToken))
+        if (await dashboardWidgetRepository.AnyAsync(cancellationToken))
         {
             return;
         }
 
-        var graphTypes = await graphTypeRepository.GetByTechnicalNameAsync(cancellationToken);
-        var graphDataTypes = await graphDataTypeRepository.GetByTechnicalNameAsync(cancellationToken);
+        var visualizationTypes = await visualizationTypeRepository.GetByTechnicalNameAsync(cancellationToken);
+        var metricDefinitions = await metricDefinitionRepository.GetByTechnicalNameAsync(cancellationToken);
 
-        graphItemRepository.AddRange(
+        dashboardWidgetRepository.AddRange(
         [
-            CreateDemoGraphItem(
+            CreateDemoDashboardWidget(
                 "Analysis Volume",
                 "Laboratory analysis volume over the last 12 months",
                 "LINE_CHART",
                 "ANALYSIS_VOLUME",
                 """{"groupBy":"MONTH"}""",
                 1,
-                graphTypes,
-                graphDataTypes),
-            CreateDemoGraphItem(
+                visualizationTypes,
+                metricDefinitions),
+            CreateDemoDashboardWidget(
                 "Analysis Status",
                 "Distribution of laboratory analysis statuses",
                 "DOUGHNUT_CHART",
                 "ANALYSIS_STATUS",
                 null,
                 2,
-                graphTypes,
-                graphDataTypes),
-            CreateDemoGraphItem(
+                visualizationTypes,
+                metricDefinitions),
+            CreateDemoDashboardWidget(
                 "Average Processing Time",
                 "Average processing time by analysis category",
                 "BAR_CHART",
                 "PROCESSING_TIME",
                 null,
                 3,
-                graphTypes,
-                graphDataTypes),
-            CreateDemoGraphItem(
+                visualizationTypes,
+                metricDefinitions),
+            CreateDemoDashboardWidget(
                 "Laboratory Workload",
                 "Current analysis workload by laboratory",
                 "BAR_CHART",
                 "LABORATORY_WORKLOAD",
                 null,
                 4,
-                graphTypes,
-                graphDataTypes)
+                visualizationTypes,
+                metricDefinitions)
         ]);
 
-        await graphItemRepository.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Seeded default dashboard graph items.");
+        await dashboardWidgetRepository.SaveChangesAsync(cancellationToken);
+        logger.LogInformation("Seeded default dashboard widgets.");
     }
 
-    private static GraphItemEntity CreateDemoGraphItem(
+    private static DashboardWidgetEntity CreateDemoDashboardWidget(
         string name,
         string description,
-        string graphTypeName,
-        string graphDataTypeName,
+        string visualizationTypeName,
+        string metricDefinitionName,
         string? content,
         int ordering,
-        IReadOnlyDictionary<string, GraphTypeEntity> graphTypes,
-        IReadOnlyDictionary<string, GraphDataTypeEntity> graphDataTypes)
+        IReadOnlyDictionary<string, VisualizationTypeEntity> visualizationTypes,
+        IReadOnlyDictionary<string, MetricDefinitionEntity> metricDefinitions)
     {
-        return new GraphItemEntity
+        return new DashboardWidgetEntity
         {
             Name = name,
             Description = description,
             Content = content,
-            GraphTypeId = graphTypes[graphTypeName].Id,
-            GraphDataTypeId = graphDataTypes[graphDataTypeName].Id,
+            VisualizationTypeId = visualizationTypes[visualizationTypeName].Id,
+            MetricDefinitionId = metricDefinitions[metricDefinitionName].Id,
             Ordering = ordering
         };
     }

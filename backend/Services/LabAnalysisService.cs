@@ -8,7 +8,7 @@ public class LabAnalysisService(ILabAnalysisRepository labAnalysisRepository) : 
     private const int DefaultPageSize = 50;
     private const int MaxPageSize = 200;
 
-    public async Task<PagedResultDto<LabAnalysisDto>> GetAnalysesAsync(
+    public async Task<PagedResultDto<LabAnalysisDto>> GetLabAnalysesAsync(
         LabAnalysisQuery query,
         CancellationToken cancellationToken)
     {

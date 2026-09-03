@@ -1,0 +1,127 @@
+<mat-card class="dashboard-widget-card" appearance="outlined">
+  <div class="widget-actions">
+    @if (!rearrangeMode()) {
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Delete widget"
+        matTooltip="Delete widget"
+        matTooltipPosition="below"
+        (click)="remove.emit()"
+      >
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Edit widget"
+        matTooltip="Edit widget"
+        matTooltipPosition="below"
+        (click)="edit.emit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    }
+  </div>
+  <mat-card-header>
+    <mat-card-title>
+      <span class="title-text">{{ dashboardWidget().name }}</span>
+      @if (description(); as text) {
+        <span
+          class="description-info"
+          tabindex="0"
+          role="img"
+          [attr.aria-label]="text"
+          [matTooltip]="text"
+          matTooltipClass="widget-description-tooltip"
+          matTooltipPosition="below"
+          [matTooltipShowDelay]="200"
+          (click)="$event.stopPropagation()"
+        >
+          <mat-icon>info</mat-icon>
+        </span>
+      }
+    </mat-card-title>
+    <mat-card-subtitle>
+      <span class="meta-line">{{ metricDefinitionLabel() }} · {{ visualizationTypeLabel() }}</span>
+      @if (scopeChips().length > 0) {
+        <div class="scope-chips">
+          @for (chip of scopeChips(); track chip.label) {
+            <span class="scope-chip">
+              <span class="scope-chip-label">{{ chip.label }}</span>
+              {{ chip.value }}
+            </span>
+          }
+        </div>
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+  <div class="filter-slot">
+    @if (showsDateRange() && !rearrangeMode()) {
+      <form class="date-range-filters" [formGroup]="dateFilters" (click)="$event.stopPropagation()">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Date from</mat-label>
+          <input matInput [matDatepicker]="fromPicker" formControlName="dateFrom" (dateChange)="onDateFilterChange()" />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+          <mat-datepicker #fromPicker />
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Date to</mat-label>
+          <input matInput [matDatepicker]="toPicker" formControlName="dateTo" (dateChange)="onDateFilterChange()" />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+          <mat-datepicker #toPicker />
+        </mat-form-field>
+        <p class="date-range-message" [class.is-error]="hasInvalidDateRange()">
+          @if (hasInvalidDateRange()) {
+            Date from must not be later than date to.
+          } @else if (!dateFilters.controls.dateFrom.value && !dateFilters.controls.dateTo.value) {
+            Empty dates use the last 12 months.
+          }
+        </p>
+      </form>
+    }
+  </div>
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="widget-state">
+        <mat-progress-spinner mode="indeterminate" diameter="32" />
+        <p>Loading analytics…</p>
+      </div>
+    } @else if (hasError()) {
+      <div class="widget-state widget-error">
+        <p>Couldn’t load this widget.</p>
+      </div>
+    } @else if (isEmpty()) {
+      <div class="widget-state">
+        <p>No data matches the current filters.</p>
+      </div>
+    } @else {
+      <div class="widget-scroll">
+        @switch (dashboardWidget().visualizationType.technicalName) {
+          @case (visualizationTypes.LINE_CHART) {
+            <app-line-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (visualizationTypes.BAR_CHART) {
+            <app-bar-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (visualizationTypes.PIE_CHART) {
+            <app-pie-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (visualizationTypes.DOUGHNUT_CHART) {
+            <app-doughnut-chart [points]="analytics()!.data" [unit]="analytics()!.unit" />
+          }
+          @case (visualizationTypes.DATA_GRID) {
+            <app-data-grid
+              [points]="analytics()!.data"
+              [rows]="analytics()!.rows"
+              [unit]="analytics()!.unit"
+            />
+          }
+          @default {
+            <p class="widget-state">This visualization is not supported yet.</p>
+          }
+        }
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

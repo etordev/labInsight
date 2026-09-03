@@ -8,11 +8,11 @@ namespace LabInsight.Api.Controllers;
 [Route("api")]
 public class AnalysesController(ILabAnalysisService labAnalysisService) : ControllerBase
 {
-    [HttpGet("getAnalyses")]
-    public async Task<ActionResult<PagedResultDto<LabAnalysisDto>>> GetAnalyses(
+    [HttpGet("getLabAnalyses")]
+    public async Task<ActionResult<PagedResultDto<LabAnalysisDto>>> GetLabAnalyses(
         [FromQuery] LabAnalysisQuery query,
         CancellationToken cancellationToken)
     {
-        return Ok(await labAnalysisService.GetAnalysesAsync(query, cancellationToken));
+        return Ok(await labAnalysisService.GetLabAnalysesAsync(query, cancellationToken));
     }
 }

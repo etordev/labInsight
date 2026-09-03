@@ -5,18 +5,18 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { GraphItemComponent } from '../../components/graph-item/graph-item.component';
-import { confirmDeleteGraph } from '../../components/confirm-dialog/confirm-dialog.component';
+import { DashboardWidgetComponent } from '../../components/dashboard-widget/dashboard-widget.component';
+import { confirmDeleteDashboardWidget } from '../../components/confirm-dialog/confirm-dialog.component';
 import { openHowItWorksDialog } from '../../components/how-it-works-dialog/how-it-works-dialog.component';
-import { GraphItem } from '../../models/graph-item.model';
-import { GraphItemService } from '../../services/graph-item.service';
-import { GraphWizardDialogComponent, GraphWizardCloseResult } from '../../wizard/graph-wizard-dialog.component';
+import { DashboardWidget } from '../../models/dashboard-widget.model';
+import { DashboardWidgetService } from '../../services/dashboard-widget.service';
+import { DashboardWidgetWizardDialogComponent, DashboardWidgetWizardCloseResult } from '../../wizard/dashboard-widget-wizard-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
   imports: [
     CdkDrag,
-    GraphItemComponent,
+    DashboardWidgetComponent,
     MatButtonModule,
     MatDialogModule,
     MatIconModule,
@@ -27,12 +27,12 @@ import { GraphWizardDialogComponent, GraphWizardCloseResult } from '../../wizard
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  private readonly graphItemService = inject(GraphItemService);
+  private readonly dashboardWidgetService = inject(DashboardWidgetService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
-  readonly graphItems = signal<GraphItem[]>([]);
+  readonly dashboardWidgets = signal<DashboardWidget[]>([]);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
   readonly isRearranging = signal(false);
@@ -40,23 +40,23 @@ export class DashboardComponent implements OnInit {
   readonly draggingId = signal<number | null>(null);
   readonly displayOrder = signal<number[]>([]);
 
-  private originalItems: GraphItem[] = [];
+  private originalItems: DashboardWidget[] = [];
   private isShiftingSlots = false;
   private liveOrder: number[] = [];
   private isDragViewDetached = false;
-  private displacedGraphId: number | null = null;
+  private displacedDashboardWidgetId: number | null = null;
   private readonly coverToMove = 0.3;
   private readonly coverToRelease = 0.15;
 
   ngOnInit(): void {
-    this.loadGraphItems();
+    this.loadDashboardWidgets();
   }
 
   onHowItWorks(): void {
     openHowItWorksDialog(this.dialog);
   }
 
-  onCreateGraph(): void {
+  onCreateDashboardWidget(): void {
     if (this.isRearranging()) {
       return;
     }
@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit {
     this.openWizard();
   }
 
-  onEditGraph(item: GraphItem): void {
+  onEditDashboardWidget(item: DashboardWidget): void {
     if (this.isRearranging()) {
       return;
     }
@@ -72,29 +72,29 @@ export class DashboardComponent implements OnInit {
     this.openWizard(item);
   }
 
-  onGraphItemUpdated(updated: GraphItem): void {
-    this.graphItems.update((items) =>
+  onDashboardWidgetUpdated(updated: DashboardWidget): void {
+    this.dashboardWidgets.update((items) =>
       items.map((item) => (item.id === updated.id ? updated : item))
     );
   }
 
-  onDeleteGraph(item: GraphItem): void {
+  onDeleteDashboardWidget(item: DashboardWidget): void {
     if (this.isRearranging()) {
       return;
     }
 
-    confirmDeleteGraph(this.dialog).subscribe((confirmed) => {
+    confirmDeleteDashboardWidget(this.dialog).subscribe((confirmed) => {
       if (!confirmed) {
         return;
       }
 
-      this.graphItemService.deleteGraphItem(item.id).subscribe({
+      this.dashboardWidgetService.deleteDashboardWidget(item.id).subscribe({
         next: () => {
-          this.snackBar.open('Graph deleted successfully.', 'Dismiss', { duration: 4000 });
-          this.loadGraphItems();
+          this.snackBar.open('Widget deleted successfully.', 'Dismiss', { duration: 4000 });
+          this.loadDashboardWidgets();
         },
         error: () => {
-          this.snackBar.open('Could not delete the graph. Please try again.', 'Dismiss', {
+          this.snackBar.open('Could not delete the widget. Please try again.', 'Dismiss', {
             duration: 4000
           });
         }
@@ -103,13 +103,13 @@ export class DashboardComponent implements OnInit {
   }
 
   onStartRearrange(): void {
-    this.originalItems = [...this.graphItems()];
-    this.displayOrder.set(this.graphItems().map((item) => item.id));
+    this.originalItems = [...this.dashboardWidgets()];
+    this.displayOrder.set(this.dashboardWidgets().map((item) => item.id));
     this.isRearranging.set(true);
   }
 
   onAbortRearrange(): void {
-    this.graphItems.set([...this.originalItems]);
+    this.dashboardWidgets.set([...this.originalItems]);
     this.displayOrder.set(this.originalItems.map((item) => item.id));
     this.originalItems = [];
     this.isRearranging.set(false);
@@ -121,14 +121,14 @@ export class DashboardComponent implements OnInit {
   onSaveOrder(): void {
     const items = this.itemsInDisplayOrder();
     const payload = items.map((item, index) => ({
-      graphId: item.id,
+      dashboardWidgetId: item.id,
       ordering: index + 1
     }));
 
     this.isSavingOrder.set(true);
-    this.graphItemService.updateGraphOrdering(payload).subscribe({
+    this.dashboardWidgetService.updateDashboardWidgetOrdering(payload).subscribe({
       next: () => {
-        this.graphItems.set(
+        this.dashboardWidgets.set(
           items.map((item, index) => ({
             ...item,
             ordering: index + 1
@@ -139,11 +139,11 @@ export class DashboardComponent implements OnInit {
         this.isRearranging.set(false);
         this.isSavingOrder.set(false);
         this.draggingId.set(null);
-        this.snackBar.open('Graph order saved.', 'Dismiss', { duration: 4000 });
+        this.snackBar.open('Widget order saved.', 'Dismiss', { duration: 4000 });
       },
       error: () => {
         this.isSavingOrder.set(false);
-        this.snackBar.open('Could not save the graph order. Please try again.', 'Dismiss', {
+        this.snackBar.open('Could not save the widget order. Please try again.', 'Dismiss', {
           duration: 4000
         });
       }
@@ -155,9 +155,9 @@ export class DashboardComponent implements OnInit {
     return index < 0 ? 0 : index;
   }
 
-  onDragStarted(event: CdkDragStart<GraphItem>): void {
+  onDragStarted(event: CdkDragStart<DashboardWidget>): void {
     this.isShiftingSlots = false;
-    this.displacedGraphId = null;
+    this.displacedDashboardWidgetId = null;
     this.liveOrder = [...this.displayOrder()];
     this.draggingId.set(event.source.data?.id ?? null);
     this.pinDraggedCard(event.source.getRootElement());
@@ -166,7 +166,7 @@ export class DashboardComponent implements OnInit {
     this.isDragViewDetached = true;
   }
 
-  onDragMoved(event: CdkDragMove<GraphItem>): void {
+  onDragMoved(event: CdkDragMove<DashboardWidget>): void {
     if (this.isShiftingSlots || !this.isRearranging()) {
       return;
     }
@@ -182,7 +182,7 @@ export class DashboardComponent implements OnInit {
     }
 
     const from = this.liveOrder.indexOf(dragged.id);
-    const targetId = this.targetGraphId(grid, event.source.getRootElement(), dragged.id);
+    const targetId = this.targetDashboardWidgetId(grid, event.source.getRootElement(), dragged.id);
     const to = targetId == null ? -1 : this.liveOrder.indexOf(targetId);
     if (from < 0 || to < 0 || from === to) {
       return;
@@ -191,25 +191,25 @@ export class DashboardComponent implements OnInit {
     const originRects = this.slotRectsByItemId(grid);
     this.isShiftingSlots = true;
     moveItemInArray(this.liveOrder, from, to);
-    this.displacedGraphId = targetId;
+    this.displacedDashboardWidgetId = targetId;
     this.applySlotOrder(grid);
     this.animateSlotShift(grid, dragged.id, originRects);
     this.isShiftingSlots = false;
   }
 
-  onDragEnded(event: CdkDragEnd<GraphItem>): void {
+  onDragEnded(event: CdkDragEnd<DashboardWidget>): void {
     this.unpinDraggedCard(event.source.getRootElement());
     event.source.reset();
     this.isShiftingSlots = false;
-    this.displacedGraphId = null;
+    this.displacedDashboardWidgetId = null;
     this.draggingId.set(null);
     this.displayOrder.set([...this.liveOrder]);
-    this.graphItems.set(this.itemsInDisplayOrder());
+    this.dashboardWidgets.set(this.itemsInDisplayOrder());
     this.reattachDragView();
   }
 
   retry(): void {
-    this.loadGraphItems();
+    this.loadDashboardWidgets();
   }
 
   private pinDraggedCard(element: HTMLElement): void {
@@ -237,7 +237,7 @@ export class DashboardComponent implements OnInit {
     element.style.transform = '';
   }
 
-  private targetGraphId(
+  private targetDashboardWidgetId(
     grid: HTMLElement,
     draggedCard: HTMLElement,
     draggedId: number
@@ -247,15 +247,15 @@ export class DashboardComponent implements OnInit {
     let bestCoverage = this.coverToMove;
 
     for (const slot of this.gridSlots(grid)) {
-      const id = Number(slot.dataset['graphId']);
+      const id = Number(slot.dataset['dashboardWidgetId']);
       if (Number.isNaN(id) || id === draggedId) {
         continue;
       }
 
       const coverage = this.overlapRatio(draggedRect, slot.getBoundingClientRect());
-      if (id === this.displacedGraphId) {
+      if (id === this.displacedDashboardWidgetId) {
         if (coverage < this.coverToRelease) {
-          this.displacedGraphId = null;
+          this.displacedDashboardWidgetId = null;
         }
         continue;
       }
@@ -287,7 +287,7 @@ export class DashboardComponent implements OnInit {
   private slotRectsByItemId(grid: HTMLElement): Map<number, DOMRect> {
     const rects = new Map<number, DOMRect>();
     this.gridSlots(grid).forEach((slot) => {
-      const id = Number(slot.dataset['graphId']);
+      const id = Number(slot.dataset['dashboardWidgetId']);
       if (!Number.isNaN(id)) {
         rects.set(id, slot.getBoundingClientRect());
       }
@@ -301,7 +301,7 @@ export class DashboardComponent implements OnInit {
     originRects: Map<number, DOMRect>
   ): void {
     this.gridSlots(grid).forEach((slot) => {
-      const id = Number(slot.dataset['graphId']);
+      const id = Number(slot.dataset['dashboardWidgetId']);
       if (Number.isNaN(id) || id === draggedId) {
         return;
       }
@@ -336,7 +336,7 @@ export class DashboardComponent implements OnInit {
 
   private applySlotOrder(grid: HTMLElement): void {
     this.gridSlots(grid).forEach((slot) => {
-      const id = Number(slot.dataset['graphId']);
+      const id = Number(slot.dataset['dashboardWidgetId']);
       if (Number.isNaN(id)) {
         return;
       }
@@ -355,59 +355,59 @@ export class DashboardComponent implements OnInit {
     this.changeDetectorRef.detectChanges();
   }
 
-  private itemsInDisplayOrder(): GraphItem[] {
-    const itemsById = new Map(this.graphItems().map((item) => [item.id, item]));
+  private itemsInDisplayOrder(): DashboardWidget[] {
+    const itemsById = new Map(this.dashboardWidgets().map((item) => [item.id, item]));
     return this.displayOrder()
       .map((id) => itemsById.get(id))
-      .filter((item): item is GraphItem => item != null);
+      .filter((item): item is DashboardWidget => item != null);
   }
 
   private gridSlots(grid: HTMLElement): HTMLElement[] {
     return Array.from(grid.querySelectorAll<HTMLElement>(':scope > .grid-item'));
   }
 
-  private openWizard(graphItem?: GraphItem): void {
+  private openWizard(dashboardWidget?: DashboardWidget): void {
     this.dialog
-      .open<GraphWizardDialogComponent, { graphItem?: GraphItem }, GraphWizardCloseResult>(
-        GraphWizardDialogComponent,
+      .open<DashboardWidgetWizardDialogComponent, { dashboardWidget?: DashboardWidget }, DashboardWidgetWizardCloseResult>(
+        DashboardWidgetWizardDialogComponent,
         {
           width: 'min(52rem, calc(100vw - 2rem))',
           maxWidth: '52rem',
           autoFocus: 'first-tabbable',
           restoreFocus: true,
-          panelClass: 'graph-wizard-dialog',
-          data: graphItem ? { graphItem } : {}
+          panelClass: 'dashboard-widget-wizard-dialog',
+          data: dashboardWidget ? { dashboardWidget } : {}
         }
       )
       .afterClosed()
       .subscribe((result) => this.applyWizardResult(result));
   }
 
-  private applyWizardResult(result: GraphWizardCloseResult | undefined): void {
+  private applyWizardResult(result: DashboardWidgetWizardCloseResult | undefined): void {
     if (!result) {
       return;
     }
 
     if (result.action === 'deleted') {
-      this.snackBar.open('Graph deleted successfully.', 'Dismiss', { duration: 4000 });
-      this.loadGraphItems();
+      this.snackBar.open('Widget deleted successfully.', 'Dismiss', { duration: 4000 });
+      this.loadDashboardWidgets();
       return;
     }
 
     if (result.created) {
-      this.graphItems.update((items) => [...items, result.item]);
+      this.dashboardWidgets.update((items) => [...items, result.item]);
       this.displayOrder.update((order) => [...order, result.item.id]);
-      this.snackBar.open('Graph created successfully.', 'Dismiss', { duration: 4000 });
+      this.snackBar.open('Widget created successfully.', 'Dismiss', { duration: 4000 });
       return;
     }
 
-    this.graphItems.update((items) =>
+    this.dashboardWidgets.update((items) =>
       items.map((item) => (item.id === result.item.id ? result.item : item))
     );
-    this.snackBar.open('Graph updated successfully.', 'Dismiss', { duration: 4000 });
+    this.snackBar.open('Widget updated successfully.', 'Dismiss', { duration: 4000 });
   }
 
-  private loadGraphItems(): void {
+  private loadDashboardWidgets(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
     this.isRearranging.set(false);
@@ -416,9 +416,9 @@ export class DashboardComponent implements OnInit {
     this.reattachDragView();
     this.originalItems = [];
 
-    this.graphItemService.getGraphItems().subscribe({
+    this.dashboardWidgetService.getDashboardWidgets().subscribe({
       next: (items) => {
-        this.graphItems.set(items);
+        this.dashboardWidgets.set(items);
         this.displayOrder.set(items.map((item) => item.id));
         this.isLoading.set(false);
       },

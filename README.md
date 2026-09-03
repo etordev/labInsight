@@ -22,9 +22,9 @@ The live application is deployed with:
 
 ## Overview
 
-LabInsight provides a configurable dashboard for monitoring fictional laboratory operations. The layout is not a fixed set of charts: each widget is a saved graph item with its own metric, visualization, filters, and order on the page.
+LabInsight provides a configurable dashboard for monitoring fictional laboratory operations. The layout is not a fixed set of charts: each widget is a saved dashboard widget with its own metric, visualization, filters, and order on the page.
 
-The frontend renders those widgets. Filtering and aggregation run on the backend, which returns prepared series (and, for some metrics, table rows) for the selected graph.
+The frontend renders those widgets. Filtering and aggregation run on the backend, which returns prepared series (and, for some metrics, table rows) for the selected widget.
 
 ## Features
 
@@ -35,10 +35,10 @@ The frontend renders those widgets. Filtering and aggregation run on the backend
 - Optional date range for Analysis Volume, Processing Time, and Completion Rate (empty dates default to the last 12 months on the server)
 - Optional grouping by day, week, or month for Analysis Volume and Processing Time
 - Applied laboratory, category, priority, and status filters shown on the widget when set
-- Optional graph description, shown from an info icon on hover
+- Optional widget description, shown from an info icon on hover
 - Edit and delete widgets
 - Drag-and-drop reorder, then save the new order
-- Persistent widget configuration (`GraphItem` plus JSON content)
+- Persistent widget configuration (`DashboardWidget` plus JSON content)
 - Server-side analytics over a synthetic laboratory dataset
 
 ## Available Analytics
@@ -58,14 +58,14 @@ Not every visualization is offered for every metric. Compatible chart types are 
 
 ## Configurable Dashboard
 
-Creating or editing a graph uses four steps:
+Creating or editing a widget uses four steps:
 
-1. **Select Data** — choose the metric (`GraphDataType`)
-2. **Select Graph Type** — choose how to draw it (`GraphType`), from the types allowed for that metric
+1. **Select Data** — choose the metric (`MetricDefinition`)
+2. **Select Visualization Type** — choose how to draw it (`VisualizationType`), from the types allowed for that metric
 3. **Configure** — name, optional description, and optional filters
 4. **Review & Create** — confirm, then save (or save changes when editing)
 
-`GraphDataType` is **what** is calculated. `GraphType` is **how** it is visualized. For example, Analysis Volume can be a line chart, bar chart, or data grid.
+`MetricDefinition` is **what** is calculated. `VisualizationType` is **how** it is visualized. For example, Analysis Volume can be a line chart, bar chart, or data grid.
 
 Each widget stores its configuration and is loaded independently. Date-capable widgets can change Date from / Date to on the card; that update is saved and the series is recalculated on the server.
 
@@ -81,7 +81,7 @@ Entity Framework Core
 PostgreSQL
 ```
 
-The UI does not filter raw analysis rows in the browser for these graphs. It calls `GET /api/getGraphItemData/{id}`. The API reads that item’s saved content, applies filters in EF Core, aggregates, and returns points (and unit labels) ready to plot.
+The UI does not filter raw analysis rows in the browser for these widgets. It calls `GET /api/getDashboardWidgetData/{id}`. The API reads that item’s saved content, applies filters in EF Core, aggregates, and returns points (and unit labels) ready to plot.
 
 ## Technology Stack
 
@@ -106,7 +106,7 @@ The UI does not filter raw analysis rows in the browser for these graphs. It cal
 
 ## Synthetic Dataset
 
-On first API start, the backend applies migrations and seeds catalog data plus **15,000** synthetic `LabAnalysis` records (deterministic seed). If no graphs exist yet, it also creates four example widgets.
+On first API start, the backend applies migrations and seeds catalog data plus **15,000** synthetic `LabAnalysis` records (deterministic seed). If no widgets exist yet, it also creates four example widgets.
 
 The seed includes:
 
